@@ -20,8 +20,9 @@ que PHP invoca cuando necesita algo rápido.
 
 ## Estado actual
 
-Frontend funcionando con 5 vistas: **Mapa**, **Buscar moto**, **Mis viajes**,
-**Flota** y **Acerca del proyecto**. Tema oscuro "Cyber-Tech".
+Landing de entrada estilo Bikago (widget de reserva, filtros, catálogo,
+locaciones y calculadora) y una app con 5 vistas: **Mapa**, **Buscar moto**,
+**Mis viajes**, **Flota** y **Acerca del proyecto**. Tema oscuro "Cyber-Tech".
 
 - El **mapa** traza rutas reales (OpenStreetMap + OSRM) y simula la moto
   viajando de A a B.
@@ -46,7 +47,7 @@ y entrar a `http://localhost:8000`.
 | --- | --- |
 | `index.html` | La página completa (menú + vistas). |
 | `css/` | Estilo visual (tema oscuro). |
-| `js/` | Lógica del mapa (map.js) y de la app (app.js). |
+| `js/` | Lógica de la landing (landing.js), del mapa (map.js) y de la app (app.js). |
 | `data/motos.json` | "Base de datos" simulada de la flota. |
 | `wasm/src` y `wasm/out` | Fuente del motor C++ y su compilado (próximo). |
 | `backend/` | Versión PHP para hosting con base de datos real (próximo). |

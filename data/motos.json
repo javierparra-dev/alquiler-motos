@@ -2,10 +2,12 @@
   "motos": [
     {
       "id": 1,
-      "nombre": "Honda CG 160",
+      "nombre": "Honda PCX 160cc",
       "tipo": "city",
+      "categoria": "scooter",
       "precio_base": 3.0,
       "precio_km": 0.45,
+      "precio_dia": 80,
       "km": 8400,
       "horas_uso": 320,
       "disponible": true
@@ -14,8 +16,10 @@
       "id": 2,
       "nombre": "Yamaha FZ 25",
       "tipo": "city",
+      "categoria": "deportiva",
       "precio_base": 5.0,
       "precio_km": 0.60,
+      "precio_dia": 120,
       "km": 2100,
       "horas_uso": 95,
       "disponible": true
@@ -24,8 +28,10 @@
       "id": 3,
       "nombre": "Suzuki Gixxer 150",
       "tipo": "city",
+      "categoria": "deportiva",
       "precio_base": 4.0,
       "precio_km": 0.50,
+      "precio_dia": 95,
       "km": 15300,
       "horas_uso": 610,
       "disponible": false
@@ -34,10 +40,24 @@
       "id": 4,
       "nombre": "Royal Enfield Classic 350",
       "tipo": "tourer",
+      "categoria": "scooter",
       "precio_base": 7.0,
       "precio_km": 0.80,
+      "precio_dia": 110,
       "km": 560,
       "horas_uso": 22,
+      "disponible": true
+    },
+    {
+      "id": 5,
+      "nombre": "Sur-Ron Light Bee X",
+      "tipo": "offroad",
+      "categoria": "electrica",
+      "precio_base": 6.0,
+      "precio_km": 0.70,
+      "precio_dia": 150,
+      "km": 0,
+      "horas_uso": 0,
       "disponible": true
     }
   ]

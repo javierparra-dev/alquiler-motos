@@ -4,17 +4,35 @@ las distintas vistas, el mapa y los botones.
 
 ---
 
-## 1. La pantalla de entrada (el "menú")
+## 1. La pantalla de entrada (la "landing")
 
-Cuando abrís la página, primero aparece el **menú** en pantalla completa:
+Cuando abrís la página, aparece la **landing** (pantalla de bienvenida que
+baja con scroll). Está ordenada en bloques, en criollo:
 
-- El logo **MotoFlow Optimizer** arriba.
-- Un título grande: *"Alquilá motos. Calculalo rápido."*
-- El botón grande **Entrar al mapa**.
-- Cuatro tarjetas de acceso rápido:
-  **Buscar moto**, **Mis viajes**, **Flota** y **Acerca del proyecto**.
+1. **Barra de navegación pegajosa:** logo a la izquierda, un selector de
+   país al centro y el botón neón **"Alquilar ahora"** a la derecha
+   (todavía no alquila: muestra "En construcción").
+2. **Título grande:** "Rent a Scooter & Motorbike".
+3. **Widget de reserva:** un contenedor horizontal con
+   - **Pick-up / Locación:** selector de dónde retirás la moto.
+   - **"Diferente locación de devolución":** botón que despliega un
+     segundo selector si lo tocás.
+   - **Fechas:** inicio y fin (por defecto hoy y pasado mañana).
+   - **Sliders de hora:** entrega y devolución, en pasos de media hora.
+   - **Botón SEARCH:** el neón grande. Muestra un spinner un segundo y
+     entra a la app abriendo el **mapa**.
+4. **Filtros de categoría:** pastillas [Todas] [Scooters] [Deportivas]
+   [Eléctricas]. La activa tiene fondo neón; filtra la grilla al instante.
+5. **Catálogo de flota:** grilla de tarjetas con el slot de imagen (todavía
+   sin foto, se ve "Slot de imagen"), nombre, precio por día, estado
+   "Disponible" y botón **Alquilar** (muestra "En construcción").
+6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
+   que hoy es un slot), con botón "Explorar zona" ("En construcción").
+7. **Calculadora de tarifas:** elegís la moto y recalculás sola según las
+   fechas: días, precio base, impuestos (21%) y el total en `#precio-final`.
 
-Todas las tarjetas te llevan a su vista (todavía estática, sin lógica).
+> La landing es la "vidriera". El mapa y las vistas de la app aparecen al
+> tocar SEARCH o el logo.
 
 ---
 
@@ -146,8 +164,9 @@ puede subir gratis a GitHub Pages.
 
 | Archivo | Qué es |
 | --- | --- |
-| `index.html` | La página completa: menú, navbar, las 5 vistas y el pie. |
+| `index.html` | La página completa: landing, navbar, las 5 vistas y el pie. |
 | `css/styles.css` | El estilo visual (tema oscuro "Cyber-Tech"). |
+| `js/landing.js` | La landing: catálogo, filtros, widget de reserva y calculadora. |
 | `js/map.js` | Todo lo del mapa: puntos, ruta y la moto que viaja. |
 | `js/app.js` | Cambio de vistas, botones, lista de motos y la tarifa demo. |
 | `data/motos.json` | La "base de datos" simulada de las motos disponibles. |

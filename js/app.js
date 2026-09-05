@@ -62,10 +62,11 @@ window.MotoFlow = window.MotoFlow || {};
       if (ns.map) ns.map.invalidateSize();
     }, 430);
   }
+  ns.enterApp = enterApp;
 
   function showMenu() {
     app.classList.remove("active");
-    menu.style.display = "flex";
+    menu.style.display = "block";
     requestAnimationFrame(() => menu.classList.remove("menu-hidden"));
   }
 

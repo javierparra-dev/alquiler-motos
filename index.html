@@ -16,39 +16,142 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <!-- ============ HOME / MENU ============ -->
+  <!-- ============ LANDING / PANTALLA DE ENTRADA ============ -->
   <div id="menu">
-    <div class="menu-inner">
-      <header class="menu-header">
-        <span class="logo">MotoFlow <b>Optimizer</b></span>
-      </header>
+    <div class="menu-scroll">
+      <!-- NAV STICKY -->
+      <nav class="land-nav">
+        <button class="logo" data-enter>MotoFlow <b>Optimizer</b></button>
 
-      <section class="menu-hero">
+        <div class="land-nav-center">
+          <select id="loc-nav" class="select-mini" aria-label="País">
+            <option value="ar">Argentina</option>
+            <option value="es">España</option>
+            <option value="co">Colombia</option>
+            <option value="mx">México</option>
+          </select>
+        </div>
+
+        <button class="btn btn-accent btn-sm" data-disabled>Alquilar ahora</button>
+      </nav>
+
+      <!-- HERO + WIDGET DE RESERVA -->
+      <section class="hero">
         <p class="eyebrow">Demo · Cyber-Tech</p>
-        <h1>Alquilá motos.<br />Calculalo rápido.</h1>
-        <p>Frontend simple, backend PHP y un motor C++ que hace el cálculo pesado.</p>
+        <h1>Rent a Scooter &amp; Motorbike</h1>
+        <p class="hero-sub">
+          Alquilá por hora o por día. Tarifas dinámicas calculadas por el motor de C++ (panel).
+        </p>
+
+        <div class="widget">
+          <div class="widget-grid">
+            <div class="field">
+              <label for="loc-pickup">Pick-up · Locación</label>
+              <select id="loc-pickup">
+                <option value="caba">Buenos Aires (CABA)</option>
+                <option value="norte">Zona Norte</option>
+                <option value="aeropuerto">Aeropuerto</option>
+                <option value="cba">Córdoba</option>
+              </select>
+            </div>
+
+            <div class="field field-return">
+              <button type="button" id="toggle-return" class="link-btn">Diferente locación de devolución</button>
+              <select id="loc-dropoff" class="hidden">
+                <option value="caba">Buenos Aires (CABA)</option>
+                <option value="norte">Zona Norte</option>
+                <option value="aeropuerto">Aeropuerto</option>
+                <option value="cba">Córdoba</option>
+              </select>
+            </div>
+
+            <div class="field field-date">
+              <label for="date-start">Fechas</label>
+              <div class="date-range">
+                <input type="date" id="date-start" />
+                <input type="date" id="date-end" />
+              </div>
+            </div>
+
+            <div class="field field-slider">
+              <label for="time-out">Hora entrega <b id="time-out-val">09:00</b></label>
+              <input type="range" id="time-out" min="0" max="47" step="1" value="18" />
+            </div>
+
+            <div class="field field-slider">
+              <label for="time-back">Hora devolución <b id="time-back-val">18:00</b></label>
+              <input type="range" id="time-back" min="0" max="47" step="1" value="36" />
+            </div>
+
+            <button type="button" id="search-btn" class="btn btn-accent btn-search">
+              <span>SEARCH</span>
+              <span id="spinner" class="spinner hidden"></span>
+            </button>
+          </div>
+        </div>
       </section>
 
-      <button class="btn btn-primary-lg" data-enter>Entrar al mapa</button>
+      <!-- FILTROS DINÁMICOS -->
+      <section class="filters" aria-label="Filtrar flota">
+        <button class="pill active" data-cat="todas">Todas</button>
+        <button class="pill" data-cat="scooter">Scooters</button>
+        <button class="pill" data-cat="deportiva">Deportivas</button>
+        <button class="pill" data-cat="electrica">Eléctricas</button>
+      </section>
 
-      <nav class="menu-grid">
-        <button class="card" data-goto="buscar">
-          <span class="card-title">Buscar moto</span>
-          <span class="card-desc">Elegí tu moto y armá el viaje</span>
-        </button>
-        <button class="card" data-goto="viajes">
-          <span class="card-title">Mis viajes</span>
-          <span class="card-desc">Historial de alquileres</span>
-        </button>
-        <button class="card" data-goto="flota">
-          <span class="card-title">Flota</span>
-          <span class="card-desc">Estado y mantenimiento de motos</span>
-        </button>
-        <button class="card" data-goto="acerca">
-          <span class="card-title">Acerca del proyecto</span>
-          <span class="card-desc">Stack, motor C++ y demo</span>
-        </button>
-      </nav>
+      <!-- CATÁLOGO DE FLOTA -->
+      <section class="catalog">
+        <div id="land-grid" class="grid-3"></div>
+      </section>
+
+      <!-- LOCACIONES -->
+      <section class="locations">
+        <div class="loc-row">
+          <div class="loc-text">
+            <h2>Buenos Aires</h2>
+            <p>Motos disponibles en el microcentro, Palermo y Retiro.</p>
+            <button class="btn btn-ghost" data-disabled>Explorar zona</button>
+          </div>
+          <div class="loc-img" data-img>Slot de imagen</div>
+        </div>
+
+        <div class="loc-row flip">
+          <div class="loc-text">
+            <h2>Zona Norte</h2>
+            <p>Cobertura hasta Tigre y San Isidro, con entrega en puerta.</p>
+            <button class="btn btn-ghost" data-disabled>Explorar zona</button>
+          </div>
+          <div class="loc-img" data-img>Slot de imagen</div>
+        </div>
+      </section>
+
+      <!-- CALCULADORA DE TARIFAS -->
+      <section class="calc">
+        <h2>Calculadora de tarifas</h2>
+
+        <div class="card calc-card">
+          <div class="field">
+            <label for="calc-moto">Moto</label>
+            <select id="calc-moto"></select>
+          </div>
+          <div class="calc-row"><span>Días</span><span id="calc-dias">-</span></div>
+          <div class="calc-row"><span>Precio base</span><span id="calc-base">-</span></div>
+          <div class="calc-row"><span>Impuestos (21%)</span><span id="calc-tax">-</span></div>
+          <div class="calc-row total"><span>Total</span><span id="precio-final">-</span></div>
+          <p class="note">Desglose de mentira para demo: el próximo paso es que lo calcule el motor C++.</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="footer-inner">
+          <span>MotoFlow Optimizer · demo</span>
+          <div class="footer-links">
+            <span data-disabled>GitHub</span>
+            <span data-disabled>Documentación</span>
+            <span data-disabled>Contacto</span>
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -242,6 +345,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/landing.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
