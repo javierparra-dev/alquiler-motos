@@ -262,6 +262,27 @@ button:disabled {
   font-family: inherit;
 }
 
+.loc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.loc-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
 .btn-sm {
   padding: 8px 16px;
   font-size: 13px;
@@ -434,6 +455,18 @@ input[type="range"] {
   color: var(--text-muted);
   font-size: 12px;
   overflow: hidden;
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+  transition: transform 0.3s ease;
+}
+
+.moto-card:hover .card-img img {
+  transform: scale(1.08);
 }
 
 .moto-head {

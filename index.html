@@ -24,12 +24,7 @@
         <button class="logo" data-enter>MotoFlow <b>Optimizer</b></button>
 
         <div class="land-nav-center">
-          <select id="loc-nav" class="select-mini" aria-label="País">
-            <option value="ar">Argentina</option>
-            <option value="es">España</option>
-            <option value="co">Colombia</option>
-            <option value="mx">México</option>
-          </select>
+          <span class="loc-pill">Argentina</span>
         </div>
 
         <button class="btn btn-accent btn-sm" data-disabled>Alquilar ahora</button>
@@ -40,7 +35,8 @@
         <p class="eyebrow">Demo · Cyber-Tech</p>
         <h1>Rent a Scooter &amp; Motorbike</h1>
         <p class="hero-sub">
-          Alquilá por hora o por día. Tarifas dinámicas calculadas por el motor de C++ (panel).
+          Cobertura en Argentina. Alquilá por hora o por día, con tarifas dinámicas
+          calculadas por el motor de C++ (demo).
         </p>
 
         <div class="widget">
@@ -91,13 +87,8 @@
         </div>
       </section>
 
-      <!-- FILTROS DINÁMICOS -->
-      <section class="filters" aria-label="Filtrar flota">
-        <button class="pill active" data-cat="todas">Todas</button>
-        <button class="pill" data-cat="scooter">Scooters</button>
-        <button class="pill" data-cat="deportiva">Deportivas</button>
-        <button class="pill" data-cat="electrica">Eléctricas</button>
-      </section>
+      <!-- FILTROS DINÁMICOS (las pastillas se generan desde los datos) -->
+      <section class="filters" id="filters" aria-label="Filtrar flota"></section>
 
       <!-- CATÁLOGO DE FLOTA -->
       <section class="catalog">
@@ -109,7 +100,7 @@
         <div class="loc-row">
           <div class="loc-text">
             <h2>Buenos Aires</h2>
-            <p>Motos disponibles en el microcentro, Palermo y Retiro.</p>
+            <p>Retiro y entrega en CABA y alrededores, con cobertura nacional en crecimiento.</p>
             <button class="btn btn-ghost" data-disabled>Explorar zona</button>
           </div>
           <div class="loc-img" data-img>Slot de imagen</div>
@@ -117,8 +108,8 @@
 
         <div class="loc-row flip">
           <div class="loc-text">
-            <h2>Zona Norte</h2>
-            <p>Cobertura hasta Tigre y San Isidro, con entrega en puerta.</p>
+            <h2>Córdoba</h2>
+            <p>Próximo punto de expansión dentro de la cobertura nacional.</p>
             <button class="btn btn-ghost" data-disabled>Explorar zona</button>
           </div>
           <div class="loc-img" data-img>Slot de imagen</div>

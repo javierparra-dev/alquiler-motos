@@ -136,7 +136,7 @@ window.MotoFlow = window.MotoFlow || {};
     el.rTime.textContent = formatTime(tripSummary.durationSec);
     el.rDemand.textContent = "x" + demand.toFixed(2);
     el.rWeather.textContent = weather + (fare.weatherMult > 1 ? " (x" + fare.weatherMult + ")" : "");
-    el.rTotal.textContent = "$ " + fare.price.toFixed(2);
+    el.rTotal.textContent = moneyARS(fare.price);
   }
 
   function formatTime(sec) {
@@ -148,6 +148,12 @@ window.MotoFlow = window.MotoFlow || {};
   function round(n) {
     return Math.round(n * 100) / 100;
   }
+
+  const moneyARS = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  });
 
   el.reset.addEventListener("click", () => {
     ns.reset();
@@ -192,7 +198,7 @@ window.MotoFlow = window.MotoFlow || {};
           m.id +
           '">' +
           m.nombre +
-          " - $" +
+          " - ARS " +
           m.precio_km +
           "/km</option>"
       )

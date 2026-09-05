@@ -20,9 +20,11 @@ que PHP invoca cuando necesita algo rápido.
 
 ## Estado actual
 
-Landing de entrada estilo Bikago (widget de reserva, filtros, catálogo,
-locaciones y calculadora) y una app con 5 vistas: **Mapa**, **Buscar moto**,
+Landing de entrada estilo Bikago (widget de reserva, filtros y catálogo de
+la flota Yamaha con fotos desde AWS S3, locaciones y calculadora en pesos
+argentinos) y una app con 5 vistas: **Mapa**, **Buscar moto**,
 **Mis viajes**, **Flota** y **Acerca del proyecto**. Tema oscuro "Cyber-Tech".
+Cobertura por ahora solo Argentina.
 
 - El **mapa** traza rutas reales (OpenStreetMap + OSRM) y simula la moto
   viajando de A a B.
@@ -48,7 +50,7 @@ y entrar a `http://localhost:8000`.
 | `index.html` | La página completa (menú + vistas). |
 | `css/` | Estilo visual (tema oscuro). |
 | `js/` | Lógica de la landing (landing.js), del mapa (map.js) y de la app (app.js). |
-| `data/motos.json` | "Base de datos" simulada de la flota. |
+| `data/motos.json` | Flota simulada (Yamaha) con precios ARS y URLs de imagen (S3). |
 | `wasm/src` y `wasm/out` | Fuente del motor C++ y su compilado (próximo). |
 | `backend/` | Versión PHP para hosting con base de datos real (próximo). |
 | `docs/` | Documentación en criollo de cada parte. |

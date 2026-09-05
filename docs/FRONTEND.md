@@ -9,27 +9,35 @@ las distintas vistas, el mapa y los botones.
 Cuando abrís la página, aparece la **landing** (pantalla de bienvenida que
 baja con scroll). Está ordenada en bloques, en criollo:
 
-1. **Barra de navegación pegajosa:** logo a la izquierda, un selector de
-   país al centro y el botón neón **"Alquilar ahora"** a la derecha
-   (todavía no alquila: muestra "En construcción").
+1. **Barra de navegación pegajosa:** logo a la izquierda, el indicador
+   **"Argentina"** al centro (por ahora solo cobertura nacional) y el
+   botón neón **"Alquilar ahora"** a la derecha (todavía no alquila:
+   muestra "En construcción").
 2. **Título grande:** "Rent a Scooter & Motorbike".
 3. **Widget de reserva:** un contenedor horizontal con
-   - **Pick-up / Locación:** selector de dónde retirás la moto.
+   - **Pick-up / Locación:** selector de dónde retirás la moto
+     (ciudades argentinas).
    - **"Diferente locación de devolución":** botón que despliega un
      segundo selector si lo tocás.
    - **Fechas:** inicio y fin (por defecto hoy y pasado mañana).
    - **Sliders de hora:** entrega y devolución, en pasos de media hora.
    - **Botón SEARCH:** el neón grande. Muestra un spinner un segundo y
      entra a la app abriendo el **mapa**.
-4. **Filtros de categoría:** pastillas [Todas] [Scooters] [Deportivas]
-   [Eléctricas]. La activa tiene fondo neón; filtra la grilla al instante.
-5. **Catálogo de flota:** grilla de tarjetas con el slot de imagen (todavía
-   sin foto, se ve "Slot de imagen"), nombre, precio por día, estado
-   "Disponible" y botón **Alquilar** (muestra "En construcción").
+4. **Filtros de categoría:** pastillas que se **generan solas desde los
+   datos** del catálogo (siempre "Todas" + las categorías reales). Hoy:
+   [Todas] [Scooters]. Si mañana hay deportivas o eléctricas, aparecen
+   solas. La activa tiene fondo neón y filtra la grilla al instante.
+5. **Catálogo de flota:** grilla de tarjetas con la **foto real de AWS S3**
+   (PNG transparente, con zoom suave al pasar el cursor), nombre, precio
+   por día en **pesos argentinos**, estado "Disponible" y botón
+   **Alquilar** (muestra "En construcción"). Si una foto no carga, queda
+   el slot de respaldo.
 6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
-   que hoy es un slot), con botón "Explorar zona" ("En construcción").
+   que hoy es un slot): **Buenos Aires** y **Córdoba**, con botón
+   "Explorar zona" ("En construcción").
 7. **Calculadora de tarifas:** elegís la moto y recalculás sola según las
-   fechas: días, precio base, impuestos (21%) y el total en `#precio-final`.
+   fechas: días, precio base, impuestos (21%) y el total en `#precio-final`,
+   todo en pesos argentinos.
 
 > La landing es la "vidriera". El mapa y las vistas de la app aparecen al
 > tocar SEARCH o el logo.
@@ -157,6 +165,24 @@ qué es placeholder para próximos pasos.
 
 Todo pasa en el navegador del visitante, sin instalar nada. Por eso se
 puede subir gratis a GitHub Pages.
+
+## Las fotos (AWS S3)
+
+Las imágenes del catálogo viven en un bucket público de **Amazon S3**
+(`alquiler-motos-assets`, región `sa-east-1`), con lectura pública y sin
+APIs. La URL de cada moto está guardada en el campo `imagen` de
+`data/motos.json`:
+
+```
+https://alquiler-motos-assets.s3.sa-east-1.amazonaws.com/images/{nombre}.png
+```
+
+- La landing las carga con `<img loading="lazy">` (PNG transparente con
+  `object-contain`, zoom suave al pasar el cursor).
+- Si la URL no carga o no existe, automáticamente se muestra el **slot de
+  respaldo** ("Slot de imagen").
+- Las imágenes de las secciones de **locaciones** todavía no se subieron:
+  por eso ahí el slot queda fijo.
 
 ---
 

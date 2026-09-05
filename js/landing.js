@@ -2,7 +2,8 @@
 
 /* ------------------------------------------------------------------
    MotoFlow.landing  ->  interactividad de la pantalla de entrada
-   - grilla de motos (filtros por categoria, slots de imagen)
+   - grilla de motos (imagenes desde S3 + slot de respaldo)
+   - filtros por categoria generados desde los datos
    - widget de reserva: locacion devolucion, sliders de hora, SEARCH
    - calculadora de tarifas (desglose demo -> #precio-final)
 ------------------------------------------------------------------- */
@@ -14,7 +15,12 @@
   let fleet = [];
 
   const WEATHER_TAX = 0.21;
-  const CATS = ["scooter", "deportiva", "electrica"];
+
+  const money = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  });
 
   /* ---------------- Carga de datos ---------------- */
   function init() {
@@ -22,26 +28,62 @@
       .then((r) => r.json())
       .then((data) => {
         fleet = data.motos;
-        renderCatalog();
+        renderPills();
+        renderCatalog("todas");
         fillCalcSelect();
         recomputeFare();
       });
   }
 
-  /* ---------------- Catalogo + filtros ---------------- */
+  /* ---------------- Filtros (generados desde los datos) ---------------- */
+  function renderPills() {
+    const container = $("#filters");
+    const cats = ["todas"].concat(
+      Array.from(new Set(fleet.map((m) => m.categoria)))
+    );
+
+    container.innerHTML = cats
+      .map(
+        (c, i) =>
+          `<button class="pill ${i === 0 ? "active" : ""}" data-cat="${c}">` +
+          labelCat(c) +
+          "</button>"
+      )
+      .join("");
+
+    $$(".pill").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        $$(".pill").forEach((p) => p.classList.toggle("active", p === pill));
+        renderCatalog(pill.dataset.cat);
+      });
+    });
+  }
+
+  function labelCat(c) {
+    if (c === "todas") return "Todas";
+    if (c === "scooter") return "Scooters";
+    if (c === "deportiva") return "Deportivas";
+    if (c === "electrica") return "Eléctricas";
+    return c.charAt(0).toUpperCase() + c.slice(1);
+  }
+
+  /* ---------------- Catálogo ---------------- */
   function renderCatalog(filter) {
     const grid = $("#land-grid");
     grid.innerHTML = fleet
+      .filter((m) => filter === "todas" || m.categoria === filter)
       .map(
         (m) => `
-        <article class="card moto-card" data-cat="${m.categoria}">
-          <div class="card-img" data-img>Slot de imagen</div>
+        <article class="card moto-card">
+          <div class="card-img">
+            ${imgSlot(m)}
+          </div>
           <div class="moto-head">
             <span class="card-title">${m.nombre}</span>
             <span class="badge ${m.disponible ? "ok" : "off"}">${m.disponible ? "Disponible" : "No disponible"}</span>
           </div>
           <div class="card-foot">
-            <div class="moto-price">$${m.precio_dia} <small>/día</small></div>
+            <div class="moto-price">${money.format(m.precio_dia)} <small>/día</small></div>
             <div class="actions">
               <button class="icon-btn" data-disabled title="Ver especificaciones">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -59,18 +101,20 @@
       .join("");
   }
 
-  $$(".pill").forEach((pill) => {
-    pill.addEventListener("click", () => {
-      $$(".pill").forEach((p) => p.classList.toggle("active", p === pill));
-      const cat = pill.dataset.cat;
-      $$("#land-grid .moto-card").forEach((card) => {
-        const show = cat === "todas" || card.dataset.cat === cat;
-        card.style.display = show ? "" : "none";
-      });
-    });
-  });
+  // Imagen desde S3; si falla o no hay, queda el slot de respaldo.
+  function imgSlot(m) {
+    if (!m.imagen) return "<span>Slot de imagen</span>";
+    return (
+      '<img src="' +
+      m.imagen +
+      '" alt="' +
+      m.nombre +
+      '" loading="lazy" ' +
+      'onerror="this.parentNode.innerHTML = \'<span>Slot de imagen</span>\'" />'
+    );
+  }
 
-  /* ---------------- Widget: locacion de devolucion ---------------- */
+  /* ---------------- Widget: locación de devolución ---------------- */
   const toggleReturn = $("#toggle-return");
   const locDropoff = $("#loc-dropoff");
 
@@ -137,7 +181,16 @@
 
   function fillCalcSelect() {
     calcMoto.innerHTML = fleet
-      .map((m) => '<option value="' + m.id + '">' + m.nombre + " - $" + m.precio_dia + "/día</option>")
+      .map(
+        (m) =>
+          '<option value="' +
+          m.id +
+          '">' +
+          m.nombre +
+          " - " +
+          money.format(m.precio_dia) +
+          "/día</option>"
+      )
       .join("");
   }
 
@@ -145,10 +198,6 @@
     const t = Date.parse(b) - Date.parse(a);
     const d = Math.round(t / 86400000);
     return d >= 1 ? d : 1;
-  }
-
-  function money(n) {
-    return "$ " + n.toFixed(2);
   }
 
   function recomputeFare() {
@@ -162,9 +211,9 @@
     const total = base + tax;
 
     $("#calc-dias").textContent = dias + (dias === 1 ? " día" : " días");
-    $("#calc-base").textContent = money(base);
-    $("#calc-tax").textContent = money(tax);
-    $("#precio-final").textContent = money(total);
+    $("#calc-base").textContent = money.format(base);
+    $("#calc-tax").textContent = money.format(tax);
+    $("#precio-final").textContent = money.format(total);
   }
 
   calcMoto.addEventListener("change", recomputeFare);
