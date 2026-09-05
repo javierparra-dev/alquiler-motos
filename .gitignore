@@ -1,0 +1,21 @@
+# PHP / Composer
+vendor/
+composer.lock
+.env
+*.log
+
+# C++ compilado
+build/
+*.o
+*.obj
+*.exe
+wasm/out/*.wasm
+
+# Node / npm
+node_modules/
+
+# Editor y S.O.
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
