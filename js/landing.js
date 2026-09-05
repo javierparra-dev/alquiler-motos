@@ -22,6 +22,15 @@
     maximumFractionDigits: 0,
   });
 
+  /* ---------------- Navbar: scroll suave a anclas ---------------- */
+  $$("a.nav-link-land").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute("href"));
+      if (target) target.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
   /* ---------------- Carga de datos ---------------- */
   function init() {
     fetch("data/motos.json")

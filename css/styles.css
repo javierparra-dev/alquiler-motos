@@ -211,6 +211,8 @@ button:disabled {
   background: var(--bg);
   color: var(--text);
   overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
@@ -224,6 +226,16 @@ button:disabled {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+@media (max-width: 720px) {
+  .loc-pill,
+  .land-nav-center {
+    display: none;
+  }
+  .land-nav-links {
+    justify-content: flex-end;
+  }
 }
 
 /* ---- Nav sticky ---- */
@@ -248,8 +260,32 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.land-nav-links {
+  display: flex;
+  gap: 4px;
   flex: 1;
   justify-content: center;
+}
+
+.nav-link-land {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-link-land:hover {
+  color: var(--accent);
+  background: rgba(0, 245, 212, 0.1);
 }
 
 .select-mini {
