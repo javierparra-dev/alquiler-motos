@@ -46,9 +46,7 @@ window.MotoFlow = window.MotoFlow || {};
   });
 
   const pointLabel = (label) =>
-    '<div class="moto-marker" style="background:#111827;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">' +
-    label +
-    "</div>";
+    '<div class="moto-marker" style="width:26px;height:26px;font-size:12px;">' + label + "</div>";
 
   map.on("click", (e) => {
     if (!pointA) {
@@ -112,7 +110,7 @@ window.MotoFlow = window.MotoFlow || {};
     }
 
     const latlngs = coords.map((c) => [c[1], c[0]]);
-    routeLine = L.polyline(latlngs, { color: "#f97316", weight: 4, opacity: 0.8 }).addTo(routeGroup);
+    routeLine = L.polyline(latlngs, { color: "#00F5D4", weight: 4, opacity: 0.9 }).addTo(routeGroup);
     map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
 
     motoMarker = L.marker(latlngs[0], { icon: motoIcon }).addTo(routeGroup);
@@ -176,7 +174,6 @@ window.MotoFlow = window.MotoFlow || {};
   // Anima la moto a lo largo de la ruta interpolando entre vertice y vertice
   function animateAlong(latlngs, totalMs) {
     const start = performance.now();
-    let last = null;
 
     const step = (now) => {
       const t = Math.min(1, (now - start) / totalMs);
@@ -189,13 +186,6 @@ window.MotoFlow = window.MotoFlow || {};
       const lng = a[1] + (b[1] - a[1]) * f;
 
       motoMarker.setLatLng([lat, lng]);
-
-      if (last) {
-        const bearing = Math.atan2(lng - last.lng, lat - last.lat);
-        motoMarker.setRotation?.("");
-        motoMarker._icon?.style.setProperty("transform", "rotate(" + bearing + "rad)");
-      }
-      last = { lat, lng };
 
       if (t < 1) {
         animRequest = requestAnimationFrame(step);

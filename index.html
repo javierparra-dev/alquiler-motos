@@ -5,50 +5,240 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MotoFlow Optimizer</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <span class="logo">MotoFlow <b>Optimizer</b></span>
-    <span class="tagline">Alquiler de motos con motor de calculo en C++</span>
-  </header>
+  <!-- ============ HOME / MENU ============ -->
+  <div id="menu">
+    <div class="menu-inner">
+      <header class="menu-header">
+        <span class="logo">MotoFlow <b>Optimizer</b></span>
+      </header>
 
-  <div id="map"></div>
+      <section class="menu-hero">
+        <p class="eyebrow">Demo · Cyber-Tech</p>
+        <h1>Alquilá motos.<br />Calculalo rápido.</h1>
+        <p>Frontend simple, backend PHP y un motor C++ que hace el cálculo pesado.</p>
+      </section>
 
-  <aside class="panel">
-    <h2>Simular viaje</h2>
+      <button class="btn btn-primary-lg" data-enter>Entrar al mapa</button>
 
-    <div class="field">
-      <label for="pickup">Punto A (origen)</label>
-      <input type="text" id="pickup" placeholder="Hace click en el mapa..." readonly />
+      <nav class="menu-grid">
+        <button class="card" data-goto="buscar">
+          <span class="card-title">Buscar moto</span>
+          <span class="card-desc">Elegí tu moto y armá el viaje</span>
+        </button>
+        <button class="card" data-goto="viajes">
+          <span class="card-title">Mis viajes</span>
+          <span class="card-desc">Historial de alquileres</span>
+        </button>
+        <button class="card" data-goto="flota">
+          <span class="card-title">Flota</span>
+          <span class="card-desc">Estado y mantenimiento de motos</span>
+        </button>
+        <button class="card" data-goto="acerca">
+          <span class="card-title">Acerca del proyecto</span>
+          <span class="card-desc">Stack, motor C++ y demo</span>
+        </button>
+      </nav>
     </div>
+  </div>
 
-    <div class="field">
-      <label for="dropoff">Punto B (destino)</label>
-      <input type="text" id="dropoff" placeholder="Hace click en el mapa..." readonly />
-    </div>
+  <!-- ============ APP ============ -->
+  <div id="app">
+    <nav class="navbar">
+      <button class="logo" id="btn-home">MotoFlow <b>Optimizer</b></button>
+      <div class="nav-links">
+        <button class="nav-link active" data-view="map">Mapa</button>
+        <button class="nav-link" data-view="buscar">Buscar moto</button>
+        <button class="nav-link" data-view="viajes">Mis viajes</button>
+        <button class="nav-link" data-view="flota">Flota</button>
+        <button class="nav-link" data-view="acerca">Acerca</button>
+      </div>
+    </nav>
 
-    <div class="field">
-      <label for="moto">Moto</label>
-      <select id="moto"></select>
-    </div>
+    <main class="app-main">
+      <!-- VISTA: MAPA -->
+      <section class="view active" id="view-map">
+        <div id="map"></div>
 
-    <button id="simulate" class="btn-primary">Simular viaje</button>
-    <button id="reset" class="btn-ghost">Limpiar</button>
+        <aside class="panel">
+          <h2>Simular viaje</h2>
 
-    <div id="result" class="result hidden">
-      <h3>Tarifa dinamica</h3>
-      <table>
-        <tr><td>Distancia</td><td id="r-dist">-</td></tr>
-        <tr><td>Duracion</td><td id="r-time">-</td></tr>
-        <tr><td>Factor demanda</td><td id="r-demand">-</td></tr>
-        <tr><td>Factor clima</td><td id="r-weather">-</td></tr>
-        <tr class="total"><td>Total</td><td id="r-total">-</td></tr>
-      </table>
-      <p class="note">Calculo simulado. El proximo paso es correrlo en el motor C++ (WASM).</p>
-    </div>
-  </aside>
+          <div class="field">
+            <label for="pickup">Punto A (origen)</label>
+            <input type="text" id="pickup" placeholder="Hace click en el mapa..." readonly />
+          </div>
+
+          <div class="field">
+            <label for="dropoff">Punto B (destino)</label>
+            <input type="text" id="dropoff" placeholder="Hace click en el mapa..." readonly />
+          </div>
+
+          <div class="field">
+            <label for="moto">Moto</label>
+            <select id="moto"></select>
+          </div>
+
+          <button id="simulate" class="btn btn-accent">Simular viaje</button>
+          <button id="reset" class="btn btn-ghost">Limpiar</button>
+
+          <div id="result" class="result hidden">
+            <h3>Tarifa dinámica</h3>
+            <table>
+              <tr><td>Distancia</td><td id="r-dist">-</td></tr>
+              <tr><td>Duración</td><td id="r-time">-</td></tr>
+              <tr><td>Factor demanda</td><td id="r-demand">-</td></tr>
+              <tr><td>Factor clima</td><td id="r-weather">-</td></tr>
+              <tr class="total"><td>Total</td><td id="r-total">-</td></tr>
+            </table>
+            <p class="note">Cálculo simulado. El próximo paso es correrlo en el motor C++ (WASM).</p>
+          </div>
+        </aside>
+      </section>
+
+      <!-- VISTA: BUSCAR MOTO -->
+      <section class="view" id="view-buscar">
+        <div class="page">
+          <header class="page-head">
+            <p class="eyebrow">Flota disponible</p>
+            <h2>Buscar moto</h2>
+            <p class="page-sub">
+              Elegí tu próxima moto. El detalle del alquiler se habilita en próximas actualizaciones.
+            </p>
+          </header>
+          <div id="moto-grid" class="grid-3"></div>
+        </div>
+      </section>
+
+      <!-- VISTA: MIS VIAJES -->
+      <section class="view" id="view-viajes">
+        <div class="page">
+          <header class="page-head">
+            <p class="eyebrow">Historial</p>
+            <h2>Mis viajes</h2>
+          </header>
+
+          <div class="empty-state">
+            <div class="empty-circle">0</div>
+            <h3>Aún no tenés viajes</h3>
+            <p>Cuando realices tu primer alquiler, el historial de viajes va a aparecer acá.</p>
+            <button class="btn btn-accent" data-disabled>Crear viaje</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA: FLOTA -->
+      <section class="view" id="view-flota">
+        <div class="page">
+          <header class="page-head">
+            <p class="eyebrow">Administración</p>
+            <h2>Flota</h2>
+            <p class="page-sub">
+              Estado de cada moto. La gestión de mantenimiento se habilita en próximas actualizaciones.
+            </p>
+          </header>
+
+          <div class="table-wrap">
+            <table class="flota">
+              <thead>
+                <tr>
+                  <th>Moto</th>
+                  <th>Tipo</th>
+                  <th>Kilometraje</th>
+                  <th>Horas de uso</th>
+                  <th>Disponibilidad</th>
+                  <th>Mantenimiento</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="flota-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA: ACERCA DEL PROYECTO -->
+      <section class="view" id="view-acerca">
+        <div class="page">
+          <header class="page-head">
+            <p class="eyebrow">Stack y motor</p>
+            <h2>Acerca del proyecto</h2>
+            <p class="page-sub">
+              MotoFlow Optimizer es una demo de arquitectura por capas: la web en el navegador, el
+              backend en PHP y el cálculo pesado en un motor C++.
+            </p>
+          </header>
+
+          <div class="tech-chips">
+            <span class="chip">PHP</span>
+            <span class="chip">C++</span>
+            <span class="chip">JavaScript</span>
+            <span class="chip">MySQL</span>
+            <span class="chip">HTML / CSS</span>
+            <span class="chip hot">WebAssembly (próximo)</span>
+          </div>
+
+          <section class="about-section">
+            <h3>Frontend</h3>
+            <p>
+              HTML, CSS y JavaScript para el mapa en vivo y la interacción. Diseño "Cyber-Tech" oscuro
+              inspirado en sistemas monocromáticos modernos.
+            </p>
+          </section>
+
+          <section class="about-section">
+            <h3>Backend (PHP)</h3>
+            <p>
+              Recibe las solicitudes del usuario, valida formularios y guarda los datos básicos:
+              motos, usuarios y viajes.
+            </p>
+          </section>
+
+          <section class="about-section">
+            <h3>Motor (C++)</h3>
+            <p>El ejecutable que PHP invoca para el cálculo pesado. Algoritmos previstos:</p>
+            <ul>
+              <li>Rutas óptimas entre punto A y punto B.</li>
+              <li>Tarifas dinámicas según oferta/demanda y clima.</li>
+              <li>Predicción de desgaste y mantenimiento (km y horas de uso).</li>
+              <li>Priorización de motos más nuevas al asignar flota.</li>
+            </ul>
+          </section>
+
+          <section class="about-section">
+            <h3>Datos</h3>
+            <p>
+              Por ahora todo corre con datos simulados en <code>data/motos.json</code>. El paso
+              siguiente es conectar la base de datos real y el motor C++ compilado a WebAssembly.
+            </p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span>MotoFlow Optimizer · demo</span>
+        <div class="footer-links">
+          <span data-disabled>GitHub</span>
+          <span data-disabled>Documentación</span>
+          <span data-disabled>Contacto</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div id="toast" class="toast"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/map.js"></script>
