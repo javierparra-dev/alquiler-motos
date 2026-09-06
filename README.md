@@ -75,7 +75,7 @@ y entrar a `http://localhost:8000`.
 
 ## Demo en vivo
 
-[Agrega acá tu enlace de GitHub Pages o Render/Railway]
+https://javierparra-dev.github.io/alquiler-motos/
 
 ## Licencia
 

@@ -130,6 +130,7 @@ queda en el centro: **C++ en el navegador (WASM) y C++ en el servidor
 | `js/motor.js` | Puente hacia el motor: usa WASM si está, si no replica en JS. |
 | `wasm/out/` | Donde queda el compilado (`.wasm` ignorado por git, el `.js` del glue se puede commitear). |
 
-> Para que la demo en GitHub Pages use la versión WASM, hay que subir
-> también el `.wasm` (git lo ignora por tamaño). Se puede forzar con
-> `git add -f wasm/out/motor.wasm`.
+> Para que la demo en GitHub Pages use la versión WASM, no hace falta
+> subir el `.wasm` a mano: el workflow `github/workflows/pages.yml`
+> compila el motor en cada publish (Emscripten) y publica el sitio con
+> `wasm/out/motor.js` + `.wasm` incluidos.

@@ -1,0 +1,45 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar Emscripten en el runner
+        uses: mymindstorm/setup-emsdk@v16
+
+      - name: Compilar el motor C++ a WebAssembly
+        # Best-effort: si falla, la demo igual se publica (modo demo JS).
+        run: |
+          emcc wasm/src/motor.cpp -o wasm/out/motor.js \
+            "-s EXPORTED_FUNCTIONS=['_tarifaDinamica','_factorDemanda','_factorClima','_scoreDesgaste','_estadoMantenimiento']" \
+            "-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall']" \
+            -s ALLOW_MEMORY_GROWTH=1 -O2 || true
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir el sitio como artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
