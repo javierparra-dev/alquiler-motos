@@ -89,12 +89,18 @@ Pasos:
 
 1. Push de este repo (el script lo clona desde GitHub).
 2. Crear la instancia EC2 (Ubuntu 24.04 Free tier) y abrir los puertos
-   **80** y **22** en el security group.
+   **80**, **443** y **22** en el security group.
 3. Entrar por **EC2 Instance Connect** y pegar `deploy/ec2-setup.sh` (hace
    todo solo: instala Apache/PHP/MySQL, crea la base `motoflow`, baja el
    código, genera `backend/src/config.php`, siembra las motos y deja la app
    en `/` y la API en `/api/`).
-4. Abrir `http://<IP_PÚBLICA>/` y probar `http://<IP_PÚBLICA>/api/motos.php`.
+4. Apuntar un dominio a la IP (ej. DuckDNS) y activar HTTPS:
+   `sudo apt-get install -y certbot python3-certbot-apache` +
+   `sudo certbot --apache -d tu.dominio`.
+5. Abrir `https://TU_DOMINIO/` y probar `https://TU_DOMINIO/api/motos.php`.
+
+La versión en producción corre en **https://motoflow.duckdns.org/**. Tras un
+push, actualizarla en EC2 con `sudo git pull` en `/var/www/motoflow`.
 
 Los endpoints y el contrato JSON están en [`docs/API.md`](docs/API.md).
 

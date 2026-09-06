@@ -6,7 +6,8 @@ siempre responde `application/json; charset=utf-8`.
 ## Dónde vive
 
 - Código: `backend/src/` (config, PDO, helpers) y `backend/public/api/` (endpoints).
-- En EC2 la API queda en `http://<IP>/api/` (mismo origen que la app, sin CORS raro).
+- En producción la API vive en **https://motoflow.duckdns.org/api/** (EC2 + DuckDNS +
+  HTTPS con Certbot) — mismo origen que la app, sin CORS raro.
 - El frontend la detecta sola (`js/api.js`): si `api/index.php` responde, usa
   MySQL; si no (GitHub Pages), cae a `data/motos.json` sin romperse.
 
@@ -101,7 +102,14 @@ opcional. `GET` lista, `GET ?id=` trae uno. Todavía no lo usa el front
 
 ## Notas
 
-- Sin auth: la app es una demo. Cuando haya login real se agrega un token.
+- Sin auth: la app es una demo y el frontend vive en el mismo origen, así que
+  una API key no aporta (la clave sería visible en el JS de todas formas). La
+  protección elegida es **HTTPS**: cerá 443 con `certbot --apache` para el
+  dominio y todo viaja cifrado.
+- Probar la API viva: `curl https://motoflow.duckdns.org/api/motos.php`.
+- Actualizar el código desplegado: el servidor sirve un clone del repo, así
+  que tras un push hay que `cd /var/www/motoflow && sudo git pull` en EC2
+  (Apache sirve directo, no hay build).
 - CORS habilitado en `helpers.php` por si algún día se sirve la API en otro
   origen, pero en EC2 no hace falta (mismo origen).
 - `config.php` con `CAMBIAME` tira error 500 con mensaje claro (no se puede
