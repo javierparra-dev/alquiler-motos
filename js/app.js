@@ -91,7 +91,7 @@ window.MotoFlow = window.MotoFlow || {};
     if (!t) return;
     e.preventDefault();
     e.stopPropagation();
-    showToast();
+    showToast(t.dataset.message);
   });
 
   function showToast(message) {
