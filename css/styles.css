@@ -776,10 +776,14 @@ input[type="range"] {
   gap: 16px;
 }
 
+.footer-links a,
 .footer-links span {
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 }
 
+.footer-links a:hover,
 .footer-links span:hover {
   color: var(--accent);
 }
@@ -969,6 +973,13 @@ input[type="range"] {
   color: var(--text-muted);
   font-size: 14px;
   max-width: 380px;
+}
+
+.js-hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 24px 0;
+  text-align: center;
 }
 
 /* ==================================================================

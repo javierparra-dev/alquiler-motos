@@ -38,6 +38,10 @@ Cobertura por ahora solo Argentina.
   reales de la flota + la hora actual.
 - Los botones que no tienen lógica todavía muestran el aviso
   "En construcción : se habilita en próximas actualizaciones".
+- La app **detecta el backend** automáticamente: si corre con PHP + MySQL,
+  las motos salen de la base real, se puede **guardar cada viaje** en
+  "Mis viajes" y **reservar** desde "Buscar moto". Si no (GitHub Pages),
+  usa `data/motos.json` como demo sin romperse.
 
 ## Compilar el motor
 
@@ -66,12 +70,33 @@ y entrar a `http://localhost:8000`.
 | --- | --- |
 | `index.html` | La página completa (menú + vistas). |
 | `css/` | Estilo visual (tema oscuro). |
-| `js/` | Lógica de la landing (landing.js), del mapa (map.js), de la app (app.js) y el puente al motor (motor.js). |
+| `js/` | Lógica de la landing (landing.js), del mapa (map.js), de la app (app.js), del puente al motor (motor.js) y de la API (api.js). |
 | `data/motos.json` | Flota simulada (Yamaha) con precios ARS y URLs de imagen (S3). |
 | `wasm/src` y `wasm/out` | Fuente del motor C++ (`motor.cpp`) y su compilado. |
 | `build.bat` | Compila el motor (g++ para test local + Emscripten para WASM). |
-| `backend/` | Versión PHP para hosting con base de datos real (próximo). |
+| `backend/` | Backend PHP + MySQL: config, conexión PDO y endpoints REST en `backend/public/api/`. Detalle en `docs/API.md`. |
+| `deploy/` | Script de despliegue para hostear la app completa en AWS EC2 (`ec2-setup.sh`). |
 | `docs/` | Documentación en criollo de cada parte (ver `docs/MOTOR.md`). |
+
+## App completa en AWS EC2 (PHP + MySQL)
+
+GitHub Pages solo puede servir estático (demo). Para la versión con base de
+datos real se usa una instancia EC2 `t3.micro` (entra en el free tier) con
+Apache, PHP y MySQL. El frontend detecta la API por el mismo origen y ahora
+sí guarda viajes y reservas.
+
+Pasos:
+
+1. Push de este repo (el script lo clona desde GitHub).
+2. Crear la instancia EC2 (Ubuntu 24.04 Free tier) y abrir los puertos
+   **80** y **22** en el security group.
+3. Entrar por **EC2 Instance Connect** y pegar `deploy/ec2-setup.sh` (hace
+   todo solo: instala Apache/PHP/MySQL, crea la base `motoflow`, baja el
+   código, genera `backend/src/config.php`, siembra las motos y deja la app
+   en `/` y la API en `/api/`).
+4. Abrir `http://<IP_PÚBLICA>/` y probar `http://<IP_PÚBLICA>/api/motos.php`.
+
+Los endpoints y el contrato JSON están en [`docs/API.md`](docs/API.md).
 
 ## Demo en vivo
 

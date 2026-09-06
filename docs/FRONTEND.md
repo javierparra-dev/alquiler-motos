@@ -134,8 +134,14 @@ Una grilla con las motos de la flota. Cada tarjeta muestra:
 
 ## 5. La vista Mis viajes
 
-Estado vacío: "Aún no tenés viajes". Solo tiene el botón **Crear viaje**,
-que por ahora también muestra el aviso "En construcción".
+El historial vive en `#viajes-list`:
+
+- **Con backend** (PHP + MySQL): entra a la vista, carga los viajes con
+  `api.listViajes()` y muestra una tarjeta por viaje (moto, tarifa, calles,
+  distancia y fecha). Cada viaje se guarda desde el mapa con el botón
+  **Guardar en Mis viajes** (`app.saveTrip`) tras simular la ruta.
+- **Sin backend** (GitHub Pages): explica que los viajes no se guardan en la
+  demo; el contenedor queda en su estado vacío "Aún no tenés viajes".
 
 ---
 

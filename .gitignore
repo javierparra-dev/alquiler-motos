@@ -3,6 +3,7 @@ vendor/
 composer.lock
 .env
 *.log
+backend/src/config.php
 
 # C++ compilado
 build/

@@ -4,9 +4,10 @@
    MotoFlow.app  ->  UI: navegacion de vistas, tarifa dinamica
    - switcher de vistas desde la navbar
    - toast generico para botones "en construccion" ([data-disabled])
-   - render de motos y flota desde data/motos.json
+   - motos desde js/api.js (MySQL si hay backend, si no data/motos.json)
    - tarifa y mantenimiento calculados por el motor C++ (js/motor.js)
-------------------------------------------------------------------- */
+   - viajes: guardar desde el mapa y reservar desde Buscar moto
+------------------------------------------------------------------ */
 
 window.MotoFlow = window.MotoFlow || {};
 
@@ -19,6 +20,7 @@ window.MotoFlow = window.MotoFlow || {};
     moto: $("#moto"),
     simulate: $("#simulate"),
     reset: $("#reset"),
+    saveTrip: $("#save-trip"),
     result: $("#result"),
     rDist: $("#r-dist"),
     rTime: $("#r-time"),
@@ -35,6 +37,8 @@ window.MotoFlow = window.MotoFlow || {};
   let toastTimer = null;
   let fleet = [];
   let tripSummary = null;
+  let backendOn = false;
+  let lastFare = 0;
 
   /* ---------------- Vistas ---------------- */
   const views = document.querySelectorAll(".view");
@@ -48,6 +52,7 @@ window.MotoFlow = window.MotoFlow || {};
     if (viewId === "map" && ns.map) {
       setTimeout(() => ns.map.invalidateSize(), 60);
     }
+    if (viewId === "viajes") renderViajes();
   }
 
   navLinks.forEach((l) => l.addEventListener("click", () => go(l.dataset.view)));
@@ -129,20 +134,21 @@ window.MotoFlow = window.MotoFlow || {};
     const motor = ns.motor;
 
     // Demanda real: motos libres de la flota + hora actual del dia.
-    const libres = fleet.filter((m) => m.disponible).length;
+    const libres = fleet.filter((m) => Number(m.disponible) === 1).length;
     const hora = new Date().getHours();
     const clima = motor.climaSimulado();
 
     const dFactor = motor.factorDemanda(libres, hora);
     const cFactor = motor.factorClima(clima.code);
     const price = motor.tarifaDinamica(
-      moto.precio_base,
-      moto.precio_km,
+      Number(moto.precio_base),
+      Number(moto.precio_km),
       tripSummary.distanceKm,
       libres,
       clima.code,
       hora
     );
+    lastFare = price;
 
     el.result.classList.remove("hidden");
     el.reset.classList.add("pulse");
@@ -154,6 +160,11 @@ window.MotoFlow = window.MotoFlow || {};
     el.rTotal.textContent = moneyARS(price);
     el.rMotor.textContent =
       "motor " + (motor.modo === "wasm" ? "C++ (WASM)" : "C++ (demo, sin WASM)");
+
+    if (backendOn) {
+      el.saveTrip.style.display = "";
+      el.saveTrip.textContent = "Guardar en Mis viajes";
+    }
   }
 
   function formatTime(sec) {
@@ -173,6 +184,7 @@ window.MotoFlow = window.MotoFlow || {};
     el.pickup.value = "";
     el.dropoff.value = "";
     el.result.classList.add("hidden");
+    el.saveTrip.style.display = "none";
     el.reset.classList.remove("pulse");
     tripSummary = null;
     el.simulate.disabled = true;
@@ -189,11 +201,50 @@ window.MotoFlow = window.MotoFlow || {};
     ns.revealRoute();
   });
 
-  /* ---------------- Datos (motos simuladas) ---------------- */
-  fetch("data/motos.json")
-    .then((r) => r.json())
-    .then((data) => {
-      fleet = data.motos;
+  /* ---------------- Guardar viaje (requiere backend) ---------------- */
+  el.saveTrip.addEventListener("click", async () => {
+    if (!tripSummary) return;
+    const moto = fleet.find((m) => String(m.id) === String(el.moto.value));
+    if (!moto) return;
+
+    const picks = tripSummary.latlngs || [];
+    const a = picks[0] || [null, null];
+    const b = picks[1] || [null, null];
+
+    try {
+      await ns.api.createViaje({
+        moto_id: Number(moto.id),
+        origen_calle: stripLabel(el.pickup.value),
+        destino_calle: stripLabel(el.dropoff.value),
+        origen_lat: a[0],
+        origen_lng: a[1],
+        destino_lat: b[0],
+        destino_lng: b[1],
+        distancia_km: Number(tripSummary.distanceKm || 0),
+        duracion_seg: Math.floor(Number(tripSummary.durationSec || 0)),
+        tarifa: lastFare,
+        factor_demanda: Number(el.rDemand.textContent.match(/x([\d.]+)/)?.[1] || 1),
+        factor_clima: Number(el.rWeather.textContent.match(/x([\d.]+)/)?.[1] || 1),
+        clima_nombre: ns.motor.climaSimulado().nombre,
+      });
+      showToast("Viaje guardado en Mis viajes");
+      el.saveTrip.style.display = "none";
+    } catch (err) {
+      showToast("No se pudo guardar: " + ((err && err.message) || "revisá el backend"));
+    }
+  });
+
+  function stripLabel(label) {
+    if (!label) return null;
+    if (label.indexOf("Buscando calle") === 0) return null;
+    return label;
+  }
+
+  /* ---------------- Datos (backend o data/motos.json) ---------------- */
+  ns.api
+    .fetchMotos()
+    .then((motos) => {
+      fleet = motos;
       renderAll();
     })
     .catch(() => {
@@ -213,7 +264,7 @@ window.MotoFlow = window.MotoFlow || {};
           '">' +
           m.nombre +
           " - ARS " +
-          m.precio_km +
+          Number(m.precio_km) +
           "/km</option>"
       )
       .join("");
@@ -224,51 +275,120 @@ window.MotoFlow = window.MotoFlow || {};
 
     renderMotos();
     renderFlota();
+    renderViajes();
+
+    // Detectamos el backend despues del primer render para no bloquear la demo.
+    ns.api.isAvailable().then((ok) => {
+      backendOn = ok;
+      renderMotos();
+      renderViajes();
+    });
   }
 
   /* ---------------- Vista: Buscar moto ---------------- */
   function renderMotos() {
     const grid = $("#moto-grid");
     grid.innerHTML = fleet
-      .map(
-        (m) => `
+      .map((m) => {
+        const cta = m.disponible
+          ? backendOn
+            ? '<button class="btn btn-accent" data-reserve="' + m.id + '">Reservar</button>'
+            : '<button class="btn btn-accent" data-disabled>Alquilar ahora</button>'
+          : '<button class="btn btn-disabled" disabled>No disponible</button>';
+        return `
         <article class="card moto-card">
           <div class="moto-head">
             <span class="card-title">${m.nombre}</span>
             <span class="badge ${m.disponible ? "ok" : "off"}">${m.disponible ? "Disponible" : "No disponible"}</span>
           </div>
-          <p class="card-desc">${capitalize(m.tipo)} · ${m.km.toLocaleString("es-AR")} km · ${m.horas_uso} h de uso</p>
-          <div class="moto-price">$${m.precio_km.toFixed(2)} <small>/km</small></div>
-          <button class="btn ${m.disponible ? "btn-accent" : "btn-disabled"}" ${
-          m.disponible ? "data-disabled" : "disabled"
-        }>${m.disponible ? "Alquilar ahora" : "No disponible"}</button>
-        </article>`
-      )
+          <p class="card-desc">${capitalize(m.tipo)} · ${m.km.toLocaleString("es-AR")} km · ${Number(m.horas_uso)} h de uso</p>
+          <div class="moto-price">$${Number(m.precio_km).toFixed(2)} <small>/km</small></div>
+          ${cta}
+        </article>`;
+      })
       .join("");
   }
+
+  $("#moto-grid").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-reserve]");
+    if (!b) return;
+    e.stopPropagation();
+    const moto = fleet.find((m) => String(m.id) === String(b.dataset.reserve));
+    if (moto) showToast("Reservada " + moto.nombre + " · se retira en el local más cercano");
+  });
 
   /* ---------------- Vista: Flota ---------------- */
   function renderFlota() {
     const tbody = $("#flota-body");
     tbody.innerHTML = fleet
       .map((m) => {
-        const mant = ns.motor.estadoMantenimiento(m.km, m.horas_uso); // 0 OK / 1 proximo / 2 taller
+        const mant = ns.motor.estadoMantenimiento(Number(m.km), Number(m.horas_uso)); // 0 OK / 1 proximo / 2 taller
         const mantBadge =
           '<span class="badge ' + (mant ? "warn" : "ok") + '">' +
-          ns.motor.mantenimientoLabel(m.km, m.horas_uso) +
+          ns.motor.mantenimientoLabel(Number(m.km), Number(m.horas_uso)) +
           "</span>";
         return `
           <tr>
             <td>${m.nombre}</td>
             <td>${capitalize(m.tipo)}</td>
             <td>${m.km.toLocaleString("es-AR")} km</td>
-            <td>${m.horas_uso} h</td>
+            <td>${Number(m.horas_uso)} h</td>
             <td><span class="badge ${m.disponible ? "ok" : "off"}">${m.disponible ? "Disponible" : "No disponible"}</span></td>
             <td>${mantBadge}</td>
             <td><button class="btn btn-ghost-sm" data-disabled>Programar taller</button></td>
           </tr>`;
       })
       .join("");
+  }
+
+  /* ---------------- Vista: Mis viajes ---------------- */
+  async function renderViajes() {
+    const box = $("#viajes-list");
+    if (!box) return;
+
+    if (!backendOn) {
+      box.innerHTML =
+        '<div class="empty-circle">0</div>' +
+        "<h3>Aún no tenés viajes</h3>" +
+        "<p>Sin backend los viajes no se guardan. Cuando la app corra con PHP + MySQL, primero simulá una ruta en el mapa y tocá <b>Guardar en Mis viajes</b>.</p>";
+      return;
+    }
+
+    box.innerHTML = '<p class="js-hint">Cargando viajes…</p>';
+    try {
+      const viajes = await ns.api.listViajes();
+      if (!viajes.length) {
+        box.innerHTML =
+          '<div class="empty-circle">0</div>' +
+          "<h3>Aún no tenés viajes</h3>" +
+          '<p>Simulá una ruta en el mapa y tocá <b>Guardar en Mis viajes</b> para que aparezca acá.</p>';
+        return;
+      }
+      box.classList.remove("empty-state");
+      box.innerHTML = viajes
+        .map(
+          (v) => `
+          <article class="card viaje-card">
+            <div class="moto-head">
+              <span class="card-title">${v.moto_nombre}</span>
+              <span class="badge ok">${moneyARS(v.tarifa)}</span>
+            </div>
+            <p class="card-desc">${v.origen_calle || "Origen"} → ${v.destino_calle || "Destino"}</p>
+            <div class="moto-price">${Number(v.distancia_km).toLocaleString("es-AR")} km · ${fmtDate(v.creado_en)}</div>
+          </article>`
+        )
+        .join("");
+    } catch (err) {
+      box.innerHTML = '<p class="js-hint">No se pudo listar: revisá el backend.</p>';
+    }
+  }
+
+  function fmtDate(s) {
+    const parts = String(s || "").split(" ");
+    const [y, m, d] = (parts[0] || "").split("-");
+    if (!y || !m || !d) return String(s);
+    const [h, mi] = (parts[1] || "").split(":");
+    return d + "/" + m + "/" + y + " " + (h || "00") + "." + (mi || "00") + " hs";
   }
 
   function capitalize(s) {

@@ -33,10 +33,10 @@
 
   /* ---------------- Carga de datos ---------------- */
   function init() {
-    fetch("data/motos.json")
+    ns.api.fetchMotos()
       .then((r) => r.json())
-      .then((data) => {
-        fleet = data.motos;
+      .then((motos) => {
+        fleet = motos;
         renderPills();
         renderCatalog("todas");
         fillCalcSelect();

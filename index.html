@@ -138,7 +138,7 @@
           <div class="calc-row"><span>Precio base</span><span id="calc-base">-</span></div>
           <div class="calc-row"><span>Impuestos (21%)</span><span id="calc-tax">-</span></div>
           <div class="calc-row total"><span>Total</span><span id="precio-final">-</span></div>
-          <p class="note">Factores de demanda y clima calculados por el motor C++. El clima es simulado por día (no hay base de datos todavía).</p>
+          <p class="note">Factores de demanda y clima calculados por el motor C++. El clima es simulado por día; con backend PHP + MySQL las motos y los viajes se guardan en la base real.</p>
         </div>
       </section>
 
@@ -206,6 +206,7 @@
               <tr><td>Motor</td><td id="r-motor">-</td></tr>
               <tr class="total"><td>Total</td><td id="r-total">-</td></tr>
             </table>
+            <button id="save-trip" class="btn btn-accent" style="display:none">Guardar en Mis viajes</button>
             <p class="note">Si compilaste el .wasm (build.bat) lo calcula el motor C++ real; si no, el mismo algoritmo en modo demo.</p>
           </div>
         </aside>
@@ -218,7 +219,7 @@
             <p class="eyebrow">Flota disponible</p>
             <h2>Buscar moto</h2>
             <p class="page-sub">
-              Elegí tu próxima moto. El detalle del alquiler se habilita en próximas actualizaciones.
+              Con backend: botón <b>Reservar</b> directo. Sin backend: el detalle del alquiler se habilita en próximas actualizaciones.
             </p>
           </header>
           <div id="moto-grid" class="grid-3"></div>
@@ -233,11 +234,10 @@
             <h2>Mis viajes</h2>
           </header>
 
-          <div class="empty-state">
+          <div id="viajes-list" class="empty-state">
             <div class="empty-circle">0</div>
             <h3>Aún no tenés viajes</h3>
             <p>Cuando realices tu primer alquiler, el historial de viajes va a aparecer acá.</p>
-            <button class="btn btn-accent" data-disabled>Crear viaje</button>
           </div>
         </div>
       </section>
@@ -324,7 +324,7 @@
             <h3>Datos</h3>
             <p>
               Por ahora todo corre con datos simulados en <code>data/motos.json</code> y el clima es
-              simulado por día. El paso siguiente es conectar la base de datos real (PHP + MySQL).
+              simulado por día. Si la app corre con backend PHP + MySQL (EC2), las motos y los viajes se guardan en la base real (detectado automáticamente).
             </p>
           </section>
         </div>
@@ -335,9 +335,9 @@
       <div class="footer-inner">
         <span>MotoFlow Optimizer · demo</span>
         <div class="footer-links">
-          <span data-disabled>GitHub</span>
-          <span data-disabled>Documentación</span>
-          <span data-disabled>Contacto</span>
+          <a href="https://github.com/javierparra-dev/alquiler-motos" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/javierparra-dev/alquiler-motos/blob/master/docs/API.md" target="_blank" rel="noopener">Documentación</a>
+          <a href="https://github.com/javierparra-dev/alquiler-motos/issues" target="_blank" rel="noopener">Contacto</a>
         </div>
       </div>
     </footer>
@@ -350,6 +350,7 @@
   <script src="js/map.js"></script>
   <script src="wasm/out/motor.js"></script>
   <script src="js/motor.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/landing.js"></script>
   <script src="js/app.js"></script>
 </body>
