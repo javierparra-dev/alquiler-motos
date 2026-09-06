@@ -77,6 +77,9 @@ y entrar a `http://localhost:8000`.
 
 https://javierparra-dev.github.io/alquiler-motos/
 
+> La publica GitHub Pages con un workflow que compila el motor C++ a
+> WebAssembly en cada push (`.github/workflows/pages.yml`).
+
 ## Licencia
 
 MIT

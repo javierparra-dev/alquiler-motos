@@ -1,4 +1,4 @@
-name: GitHub Pages
+name: Deploy a GitHub Pages
 
 on:
   push:
@@ -21,25 +21,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Instalar Emscripten en el runner
-        uses: mymindstorm/setup-emsdk@v16
-
       - name: Compilar el motor C++ a WebAssembly
-        # Best-effort: si falla, la demo igual se publica (modo demo JS).
+        continue-on-error: true
         run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git emsdk
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk_env.sh
+          cd ..
+          mkdir -p wasm/out
           emcc wasm/src/motor.cpp -o wasm/out/motor.js \
-            "-s EXPORTED_FUNCTIONS=['_tarifaDinamica','_factorDemanda','_factorClima','_scoreDesgaste','_estadoMantenimiento']" \
-            "-s EXPORTED_RUNTIME_METHODS=['cwrap','ccall']" \
-            -s ALLOW_MEMORY_GROWTH=1 -O2 || true
+            -s EXPORTED_FUNCTIONS="['_tarifaDinamica','_factorDemanda','_factorClima','_scoreDesgaste','_estadoMantenimiento']" \
+            -s EXPORTED_RUNTIME_METHODS="['cwrap','ccall']" \
+            -s ALLOW_MEMORY_GROWTH=1 -O2
 
-      - name: Configurar GitHub Pages
+      - name: Configurar Pages
         uses: actions/configure-pages@v5
 
-      - name: Subir el sitio como artefacto
+      - name: Subir artefacto (todo el repo, incluye wasm/out)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "."
 
-      - name: Publicar
-        id: deployment
+      - name: Desplegar
         uses: actions/deploy-pages@v4

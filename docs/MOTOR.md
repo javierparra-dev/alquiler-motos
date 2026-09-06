@@ -129,8 +129,7 @@ queda en el centro: **C++ en el navegador (WASM) y C++ en el servidor
 | `build.bat` | Compila el CLI con g++ y el WASM con Emscripten. |
 | `js/motor.js` | Puente hacia el motor: usa WASM si está, si no replica en JS. |
 | `wasm/out/` | Donde queda el compilado (`.wasm` ignorado por git, el `.js` del glue se puede commitear). |
+| `.github/workflows/pages.yml` | CI: en cada push **compila el motor solo** (Emscripten en el servidor de GitHub) y publica la demo en GitHub Pages con el WASM incluido. |
 
-> Para que la demo en GitHub Pages use la versión WASM, no hace falta
-> subir el `.wasm` a mano: el workflow `github/workflows/pages.yml`
-> compila el motor en cada publish (Emscripten) y publica el sitio con
-> `wasm/out/motor.js` + `.wasm` incluidos.
+> No hace falta subir el `.wasm` a mano: el **workflow de GitHub Pages lo
+> compila en cada push**. Para probarlo en local, corré `build.bat`.
