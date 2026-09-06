@@ -33,17 +33,14 @@
 
   /* ---------------- Carga de datos ---------------- */
   function init() {
-    window.MotoFlow.api.fetchMotos()
+    ns.api.fetchMotos()
+      .then((r) => r.json())
       .then((motos) => {
         fleet = motos;
         renderPills();
         renderCatalog("todas");
         fillCalcSelect();
         recomputeFare();
-      })
-      .catch(() => {
-        const grid = $("#land-grid");
-        if (grid) grid.innerHTML = '<p class="js-hint">No se pudo cargar la flota.</p>';
       });
   }
 
@@ -104,7 +101,7 @@
                 </svg>
               </button>
               <button class="btn ${m.disponible ? "btn-accent btn-sm" : "btn-disabled btn-sm"}" ${
-          m.disponible ? 'data-disabled data-message="No disponible"' : "disabled"
+          m.disponible ? "data-disabled" : "disabled"
         }>${m.disponible ? "Alquilar" : "No disponible"}</button>
             </div>
           </div>

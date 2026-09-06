@@ -1,8 +1,9 @@
 # MotoFlow Optimizer
 
-App web para administrar el alquiler de una flota de motos.
-El backend es **PHP** y el cálculo pesado lo hace un motor en **C++**
-que PHP invoca cuando necesita algo rápido.
+App web para administrar el alquiler de una flota de motos. Backend en **PHP**
+con un motor de cálculo en **C++** (rutas, tarifas dinámicas y mantenimiento).
+Frontend simple con **HTML**, **CSS** y **JavaScript**, DB en **MySQL**. Demo
+incluida.
 
 ## Stack
 
@@ -78,31 +79,11 @@ y entrar a `http://localhost:8000`.
 | `deploy/` | Script de despliegue para hostear la app completa en AWS EC2 (`ec2-setup.sh`). |
 | `docs/` | Documentación en criollo de cada parte (ver `docs/MOTOR.md`). |
 
-## App completa en AWS EC2 (PHP + MySQL)
+## App en producción
 
-GitHub Pages solo puede servir estático (demo). Para la versión con base de
-datos real se usa una instancia EC2 `t3.micro` (entra en el free tier) con
-Apache, PHP y MySQL. El frontend detecta la API por el mismo origen y ahora
-sí guarda viajes y reservas.
+https://motoflow.duckdns.org/
 
-Pasos:
-
-1. Push de este repo (el script lo clona desde GitHub).
-2. Crear la instancia EC2 (Ubuntu 24.04 Free tier) y abrir los puertos
-   **80**, **443** y **22** en el security group.
-3. Entrar por **EC2 Instance Connect** y pegar `deploy/ec2-setup.sh` (hace
-   todo solo: instala Apache/PHP/MySQL, crea la base `motoflow`, baja el
-   código, genera `backend/src/config.php`, siembra las motos y deja la app
-   en `/` y la API en `/api/`).
-4. Apuntar un dominio a la IP (ej. DuckDNS) y activar HTTPS:
-   `sudo apt-get install -y certbot python3-certbot-apache` +
-   `sudo certbot --apache -d tu.dominio`.
-5. Abrir `https://TU_DOMINIO/` y probar `https://TU_DOMINIO/api/motos.php`.
-
-La versión en producción corre en **https://motoflow.duckdns.org/**. Tras un
-push, actualizarla en EC2 con `sudo git pull` en `/var/www/motoflow`.
-
-Los endpoints y el contrato JSON están en [`docs/API.md`](docs/API.md).
+API y contrato JSON en [`docs/API.md`](docs/API.md).
 
 ## Demo en vivo
 
