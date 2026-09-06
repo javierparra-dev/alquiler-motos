@@ -1078,3 +1078,20 @@ table.flota tr:last-child td {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* Boton Limpiar latiendo mientras hay un viaje activo */
+@keyframes pulse-neon {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 212, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 245, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 212, 0);
+  }
+}
+
+.btn.pulse {
+  animation: pulse-neon 1.6s ease-out infinite;
+}

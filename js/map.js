@@ -49,6 +49,12 @@ window.MotoFlow = window.MotoFlow || {};
     '<div class="moto-marker" style="width:26px;height:26px;font-size:12px;">' + label + "</div>";
 
   map.on("click", (e) => {
+    // Con un viaje activo (ruta/resultado puesto), hay que limpiar primero.
+    if (ns.isTripActive && ns.isTripActive()) {
+      if (ns.onTripBlocked) ns.onTripBlocked();
+      return;
+    }
+
     if (!pointA) {
       setPointA(e.latlng);
     } else {
@@ -61,14 +67,60 @@ window.MotoFlow = window.MotoFlow || {};
     pointA = latlng;
     if (markerA) markerA.remove();
     markerA = L.marker(latlng, { icon: L.divIcon({ className: "", html: pointLabel("A"), iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
-    ns.onPointUpdated("pickup", latlng);
+    ns.onPointUpdated("pickup", { latlng, label: "Buscando calle…" });
+    resolveStreet(latlng, markerA, "pickup");
   }
 
   function setPointB(latlng) {
     pointB = latlng;
     if (markerB) markerB.remove();
     markerB = L.marker(latlng, { icon: L.divIcon({ className: "", html: pointLabel("B"), iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
-    ns.onPointUpdated("dropoff", latlng);
+    ns.onPointUpdated("dropoff", { latlng, label: "Buscando calle…" });
+    resolveStreet(latlng, markerB, "dropoff");
+  }
+
+  // Geocodificacion inversa (Nominatim). La vista muestra el nombre de la
+  // calle; el codigo sigue usando las coordenadas (latlng) para la ruta.
+  const streetCache = {};
+
+  async function reverseGeocode(latlng) {
+    const key = latlng.lat.toFixed(5) + "," + latlng.lng.toFixed(5);
+    if (key in streetCache) return streetCache[key];
+
+    const url =
+      "https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1" +
+      "&lat=" + latlng.lat + "&lon=" + latlng.lng;
+
+    try {
+      const res = await fetch(url, {
+        headers: { "Accept-Language": "es" },
+        signal: AbortSignal.timeout(7000),
+      });
+      if (!res.ok) throw new Error("geo " + res.status);
+      const json = await res.json();
+      const a = json.address || {};
+      const road = a.road || a.pedestrian || a.footway || a.neighbourhood;
+      const name = road || (json.display_name || "").split(",")[0] || null;
+      streetCache[key] = name;
+      return name;
+    } catch (e) {
+      streetCache[key] = null;
+      return null;
+    }
+  }
+
+  async function resolveStreet(latlng, marker, which) {
+    const name = await reverseGeocode(latlng);
+    const active = which === "pickup" ? pointA : pointB;
+    if (!active) return;
+
+    ns.onPointUpdated(which, {
+      latlng,
+      label: name || latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5),
+    });
+    if (name && marker) {
+      marker.bindTooltip(name, { direction: "top", offset: [0, -16] });
+    }
   }
 
   function reset() {

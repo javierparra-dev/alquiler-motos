@@ -183,7 +183,7 @@
     }, 1000);
   });
 
-  /* ---------------- Calculadora de tarifas (demo) ---------------- */
+  /* ---------------- Calculadora de tarifas (motor C++) ---------------- */
   const calcMoto = $("#calc-moto");
   const dateStart = $("#date-start");
   const dateEnd = $("#date-end");
@@ -214,12 +214,25 @@
     const moto = fleet.find((m) => String(m.id) === String(calcMoto.value));
     if (!moto) return;
 
+    const motor = window.MotoFlow.motor;
+
+    // Demanda real (motos libres de la flota + hora actual) y clima simulado.
+    const libres = fleet.filter((m) => m.disponible).length;
+    const hora = new Date().getHours();
+    const clima = motor.climaSimulado();
+
+    const dFactor = motor.factorDemanda(libres, hora);
+    const cFactor = motor.factorClima(clima.code);
+
     const dias = daysBetween(dateStart.value, dateEnd.value);
-    const base = moto.precio_dia * dias;
+    const precioDiaEfectivo = moto.precio_dia * dFactor * cFactor;
+    const base = precioDiaEfectivo * dias;
     const tax = base * WEATHER_TAX;
     const total = base + tax;
 
     $("#calc-dias").textContent = dias + (dias === 1 ? " día" : " días");
+    $("#calc-demand").textContent = "x" + dFactor.toFixed(2) + "  (" + libres + " libres)";
+    $("#calc-weather").textContent = clima.nombre + (cFactor > 1 ? "  (x" + cFactor.toFixed(2) + ")" : "");
     $("#calc-base").textContent = money.format(base);
     $("#calc-tax").textContent = money.format(tax);
     $("#precio-final").textContent = money.format(total);

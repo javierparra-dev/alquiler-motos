@@ -1,10 +1,11 @@
 "use strict";
 
 /* ------------------------------------------------------------------
-   MotoFlow.app  ->  UI: navegacion de vistas, tarifa dinamica (demo)
+   MotoFlow.app  ->  UI: navegacion de vistas, tarifa dinamica
    - switcher de vistas desde la navbar
    - toast generico para botones "en construccion" ([data-disabled])
    - render de motos y flota desde data/motos.json
+   - tarifa y mantenimiento calculados por el motor C++ (js/motor.js)
 ------------------------------------------------------------------- */
 
 window.MotoFlow = window.MotoFlow || {};
@@ -23,6 +24,7 @@ window.MotoFlow = window.MotoFlow || {};
     rTime: $("#r-time"),
     rDemand: $("#r-demand"),
     rWeather: $("#r-weather"),
+    rMotor: $("#r-motor"),
     rTotal: $("#r-total"),
   };
 
@@ -33,8 +35,6 @@ window.MotoFlow = window.MotoFlow || {};
   let toastTimer = null;
   let fleet = [];
   let tripSummary = null;
-
-  const WEATHER = ["soleado", "nublado", "lluvia"];
 
   /* ---------------- Vistas ---------------- */
   const views = document.querySelectorAll(".view");
@@ -89,27 +89,22 @@ window.MotoFlow = window.MotoFlow || {};
     showToast();
   });
 
-  function showToast() {
-    toast.textContent = "En construcción : se habilita en próximas actualizaciones";
+  function showToast(message) {
+    toast.textContent =
+      message || "En construcción : se habilita en próximas actualizaciones";
     toast.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
   }
 
-  /* ---------------- Mapa / tarifa (demo) ---------------- */
-  function calculateFare(moto, distanceKm, demand, weather) {
-    const weatherMult = { soleado: 1, nublado: 1.15, lluvia: 1.35 }[weather] || 1;
-    const price = moto.precio_base + moto.precio_km * distanceKm * weatherMult * demand;
-    return { price, demand, weather, weatherMult };
-  }
-
+  /* ---------------- Mapa / tarifa (motor C++) ---------------- */
   ns.onPointsChanged = function () {
     el.simulate.disabled = !ns.hasRoute();
     if (ns.hasRoute()) el.simulate.textContent = "Simular viaje";
   };
 
-  ns.onPointUpdated = function (which, latlng) {
-    el[which].value = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+  ns.onPointUpdated = function (which, info) {
+    el[which].value = info.label;
   };
 
   ns.onRouteResolved = function (summary) {
@@ -122,31 +117,49 @@ window.MotoFlow = window.MotoFlow || {};
     // La simulacion llego a destino
   };
 
+  // Hay viaje en curso: el mapa no deja cargar puntos nuevos sin Limpiar.
+  ns.isTripActive = () =>
+    Boolean(tripSummary) || !el.result.classList.contains("hidden");
+  ns.onTripBlocked = () => showToast("Limpiá el viaje anterior antes de cargar uno nuevo");
+
   function showFare() {
     if (!tripSummary) return;
 
     const moto = fleet.find((m) => String(m.id) === String(el.moto.value));
-    const demand = round(0.8 + Math.random() * 0.9); // 0.8 a 1.7 (simulado)
-    const weather = WEATHER[Math.floor(Math.random() * WEATHER.length)];
+    const motor = ns.motor;
 
-    const fare = calculateFare(moto, tripSummary.distanceKm, demand, weather);
+    // Demanda real: motos libres de la flota + hora actual del dia.
+    const libres = fleet.filter((m) => m.disponible).length;
+    const hora = new Date().getHours();
+    const clima = motor.climaSimulado();
+
+    const dFactor = motor.factorDemanda(libres, hora);
+    const cFactor = motor.factorClima(clima.code);
+    const price = motor.tarifaDinamica(
+      moto.precio_base,
+      moto.precio_km,
+      tripSummary.distanceKm,
+      libres,
+      clima.code,
+      hora
+    );
 
     el.result.classList.remove("hidden");
+    el.reset.classList.add("pulse");
     el.rDist.textContent = tripSummary.distanceKm.toFixed(2) + " km";
     el.rTime.textContent = formatTime(tripSummary.durationSec);
-    el.rDemand.textContent = "x" + demand.toFixed(2);
-    el.rWeather.textContent = weather + (fare.weatherMult > 1 ? " (x" + fare.weatherMult + ")" : "");
-    el.rTotal.textContent = moneyARS(fare.price);
+    el.rDemand.textContent = "x" + dFactor.toFixed(2) + "  (" + libres + " motos libres)";
+    el.rWeather.textContent =
+      clima.nombre + (cFactor > 1 ? "  (x" + cFactor.toFixed(2) + ")" : "");
+    el.rTotal.textContent = moneyARS(price);
+    el.rMotor.textContent =
+      "motor " + (motor.modo === "wasm" ? "C++ (WASM)" : "C++ (demo, sin WASM)");
   }
 
   function formatTime(sec) {
     const m = Math.floor(sec / 60);
     const s = Math.round(sec % 60);
     return m + " min " + s + " s";
-  }
-
-  function round(n) {
-    return Math.round(n * 100) / 100;
   }
 
   const moneyARS = new Intl.NumberFormat("es-AR", {
@@ -160,6 +173,7 @@ window.MotoFlow = window.MotoFlow || {};
     el.pickup.value = "";
     el.dropoff.value = "";
     el.result.classList.add("hidden");
+    el.reset.classList.remove("pulse");
     tripSummary = null;
     el.simulate.disabled = true;
     el.simulate.textContent = "Simular viaje";
@@ -238,8 +252,11 @@ window.MotoFlow = window.MotoFlow || {};
     const tbody = $("#flota-body");
     tbody.innerHTML = fleet
       .map((m) => {
-        const needsMaint = m.km >= 12000;
-        const mantBadge = needsMaint ? '<span class="badge warn">Taller pronto</span>' : '<span class="badge ok">OK</span>';
+        const mant = ns.motor.estadoMantenimiento(m.km, m.horas_uso); // 0 OK / 1 proximo / 2 taller
+        const mantBadge =
+          '<span class="badge ' + (mant ? "warn" : "ok") + '">' +
+          ns.motor.mantenimientoLabel(m.km, m.horas_uso) +
+          "</span>";
         return `
           <tr>
             <td>${m.nombre}</td>

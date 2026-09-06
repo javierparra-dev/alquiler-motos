@@ -43,7 +43,7 @@
         <h1>Rent a Scooter &amp; Motorbike</h1>
         <p class="hero-sub">
           Cobertura en Argentina. Alquilá por hora o por día, con tarifas dinámicas
-          calculadas por el motor de C++ (demo).
+          calculadas por el motor de C++ (WebAssembly).
         </p>
 
         <div class="widget">
@@ -133,10 +133,12 @@
             <select id="calc-moto"></select>
           </div>
           <div class="calc-row"><span>Días</span><span id="calc-dias">-</span></div>
+          <div class="calc-row"><span>Factor demanda</span><span id="calc-demand">-</span></div>
+          <div class="calc-row"><span>Factor clima</span><span id="calc-weather">-</span></div>
           <div class="calc-row"><span>Precio base</span><span id="calc-base">-</span></div>
           <div class="calc-row"><span>Impuestos (21%)</span><span id="calc-tax">-</span></div>
           <div class="calc-row total"><span>Total</span><span id="precio-final">-</span></div>
-          <p class="note">Desglose de mentira para demo: el próximo paso es que lo calcule el motor C++.</p>
+          <p class="note">Factores de demanda y clima calculados por el motor C++. El clima es simulado por día (no hay base de datos todavía).</p>
         </div>
       </section>
 
@@ -192,6 +194,8 @@
           <button id="simulate" class="btn btn-accent">Simular viaje</button>
           <button id="reset" class="btn btn-ghost">Limpiar</button>
 
+          <p class="note">Al terminar, tocá <b>Limpiar</b> para cargar un nuevo viaje.</p>
+
           <div id="result" class="result hidden">
             <h3>Tarifa dinámica</h3>
             <table>
@@ -199,9 +203,10 @@
               <tr><td>Duración</td><td id="r-time">-</td></tr>
               <tr><td>Factor demanda</td><td id="r-demand">-</td></tr>
               <tr><td>Factor clima</td><td id="r-weather">-</td></tr>
+              <tr><td>Motor</td><td id="r-motor">-</td></tr>
               <tr class="total"><td>Total</td><td id="r-total">-</td></tr>
             </table>
-            <p class="note">Cálculo simulado. El próximo paso es correrlo en el motor C++ (WASM).</p>
+            <p class="note">Si compilaste el .wasm (build.bat) lo calcula el motor C++ real; si no, el mismo algoritmo en modo demo.</p>
           </div>
         </aside>
       </section>
@@ -285,7 +290,7 @@
             <span class="chip">JavaScript</span>
             <span class="chip">MySQL</span>
             <span class="chip">HTML / CSS</span>
-            <span class="chip hot">WebAssembly (próximo)</span>
+            <span class="chip hot">WebAssembly (motor activo)</span>
           </div>
 
           <section class="about-section">
@@ -306,7 +311,7 @@
 
           <section class="about-section">
             <h3>Motor (C++)</h3>
-            <p>El ejecutable que PHP invoca para el cálculo pesado. Algoritmos previstos:</p>
+            <p>Algoritmos compilados a WebAssembly con Emscripten; PHP los invocaría para el cálculo pesado:</p>
             <ul>
               <li>Rutas óptimas entre punto A y punto B.</li>
               <li>Tarifas dinámicas según oferta/demanda y clima.</li>
@@ -318,8 +323,8 @@
           <section class="about-section">
             <h3>Datos</h3>
             <p>
-              Por ahora todo corre con datos simulados en <code>data/motos.json</code>. El paso
-              siguiente es conectar la base de datos real y el motor C++ compilado a WebAssembly.
+              Por ahora todo corre con datos simulados en <code>data/motos.json</code> y el clima es
+              simulado por día. El paso siguiente es conectar la base de datos real (PHP + MySQL).
             </p>
           </section>
         </div>
@@ -343,6 +348,8 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/map.js"></script>
+  <script src="wasm/out/motor.js"></script>
+  <script src="js/motor.js"></script>
   <script src="js/landing.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -8,15 +8,17 @@ que PHP invoca cuando necesita algo rápido.
 
 - **Frontend:** HTML, CSS y JavaScript (básico).
 - **Backend:** PHP (rutas, sesiones, formularios).
-- **Motor:** C++ compilado / WebAssembly (próximo paso).
+- **Motor:** C++ compilado a WebAssembly con Emscripten (`motor.cpp`).
 - **Base de datos:** MySQL (o JSON/IndexedDB en la demo estática).
 
-## Qué hace (o hará) el motor C++
+## Qué hace el motor C++
 
-- Rutas óptimas entre punto A y punto B.
-- Tarifas según oferta/demanda y clima.
-- Prioriza alquilar las motos más nuevas.
-- Estima cuándo le toca mantenimiento a cada moto (km y horas de uso).
+- Tarifas dinámicas según oferta/demanda y clima (activo en el mapa y en la
+  calculadora de la landing).
+- Estima el mantenimiento de cada moto por desgaste (km y horas de uso),
+  visible en la vista **Flota**.
+- Rutas óptimas entre punto A y punto B y priorización de motos nuevas:
+  próximos pasos.
 
 ## Estado actual
 
@@ -28,10 +30,25 @@ Cobertura por ahora solo Argentina.
 
 - El **mapa** traza rutas reales (OpenStreetMap + OSRM) y simula la moto
   viajando de A a B.
-- La **tarifa dinámica** todavía se calcula en JavaScript como demo.
-  El motor en C++ (WASM) es el próximo paso.
+- La **tarifa dinámica** la calcula el **motor C++**: si compilaste el
+  `.wasm` con `build.bat` (Emscripten) usa la versión real de C++; si no,
+  `js/motor.js` replica el mismo algoritmo en JS (modo demo) para que nada
+  se rompa.
+- El **clima** es simulado por día y la **demanda** usa las motos libres
+  reales de la flota + la hora actual.
 - Los botones que no tienen lógica todavía muestran el aviso
   "En construcción : se habilita en próximas actualizaciones".
+
+## Compilar el motor
+
+```bat
+build.bat
+```
+
+- Compila `build/motor_cli.exe` con g++ (probar el algoritmo en consola) y
+- genera `wasm/out/motor.js` + `.wasm` con Emscripten (para la web).
+
+Detalle del algoritmo y Emscripten en [`docs/MOTOR.md`](docs/MOTOR.md).
 
 ## Correr en local
 
@@ -49,11 +66,12 @@ y entrar a `http://localhost:8000`.
 | --- | --- |
 | `index.html` | La página completa (menú + vistas). |
 | `css/` | Estilo visual (tema oscuro). |
-| `js/` | Lógica de la landing (landing.js), del mapa (map.js) y de la app (app.js). |
+| `js/` | Lógica de la landing (landing.js), del mapa (map.js), de la app (app.js) y el puente al motor (motor.js). |
 | `data/motos.json` | Flota simulada (Yamaha) con precios ARS y URLs de imagen (S3). |
-| `wasm/src` y `wasm/out` | Fuente del motor C++ y su compilado (próximo). |
+| `wasm/src` y `wasm/out` | Fuente del motor C++ (`motor.cpp`) y su compilado. |
+| `build.bat` | Compila el motor (g++ para test local + Emscripten para WASM). |
 | `backend/` | Versión PHP para hosting con base de datos real (próximo). |
-| `docs/` | Documentación en criollo de cada parte. |
+| `docs/` | Documentación en criollo de cada parte (ver `docs/MOTOR.md`). |
 
 ## Demo en vivo
 
