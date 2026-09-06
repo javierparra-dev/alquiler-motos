@@ -33,14 +33,18 @@
 
   /* ---------------- Carga de datos ---------------- */
   function init() {
-    ns.api.fetchMotos()
-      .then((r) => r.json())
+    window.MotoFlow.api
+      .fetchMotos()
       .then((motos) => {
         fleet = motos;
         renderPills();
         renderCatalog("todas");
         fillCalcSelect();
         recomputeFare();
+      })
+      .catch(() => {
+        const grid = $("#land-grid");
+        if (grid) grid.innerHTML = '<p class="js-hint">No se pudo cargar la flota.</p>';
       });
   }
 
