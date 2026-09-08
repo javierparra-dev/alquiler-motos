@@ -83,11 +83,6 @@ window.MotoFlow = window.MotoFlow || {};
     }, 400);
   });
 
-  /* ---------------- Imágenes no arrastrables ---------------- */
-  document.addEventListener("dragstart", (e) => {
-    if (e.target.tagName === "IMG") e.preventDefault();
-  });
-
   /* ---------------- Widget: retiro / devolución ---------------- */
   els.toggleReturn.addEventListener("click", () => {
     els.locDropoff.classList.toggle("hidden");
@@ -186,7 +181,7 @@ window.MotoFlow = window.MotoFlow || {};
     els.img.innerHTML =
       '<span class="img-slot"></span>' +
       (moto.imagen
-        ? '<img src="' + moto.imagen + '" alt="' + moto.nombre + '" loading="lazy" draggable="false" onerror="this.remove()" />'
+        ? '<img src="' + moto.imagen + '" alt="' + moto.nombre + '" loading="lazy" onerror="this.remove()" />'
         : "");
 
     const mant = window.MotoFlow.motor.estadoMantenimiento(

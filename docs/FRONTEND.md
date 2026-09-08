@@ -30,10 +30,9 @@ baja con scroll). Está ordenada en bloques, en criollo:
    **Alquilar** (igual que SEARCH: spinner + navegación a la página del
    **Facturador**, sección 5). Si una foto no carga, queda el slot de
    respaldo.
-6. **Locaciones:** dos filas asimétricas (texto + foto de la ciudad): **Buenos
-   Aires** y **Córdoba**. Cada una muestra la **foto real del bucket S3**
-   (carpeta `zonas/`) y el botón **"Explorar zona"** abre **Google Maps**
-   centrado en esa ciudad, en pestaña nueva.
+6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
+   que hoy es un slot): **Buenos Aires** y **Córdoba**, con botón
+   "Explorar zona" ("En construcción").
 7. **Calculadora de tarifas:** elegís la moto y la cantidad de **días**
    (1–30) y recalculás sola: días, **factor demanda** (motos libres + hora)
    y **factor clima**, precio base, impuestos (21%) y el total en
@@ -242,32 +241,21 @@ real, subí también el `.wasm`; para eso está en `docs/MOTOR.md`).
 
 ## Las fotos (AWS S3)
 
-Las imágenes del proyecto viven en un bucket público de **Amazon S3**
+Las imágenes del catálogo viven en un bucket público de **Amazon S3**
 (`alquiler-motos-assets`, región `sa-east-1`), con lectura pública y sin
-APIs. Son el storage de la app, no el servidor EC2. Hay dos carpetas:
+APIs. La URL de cada moto está guardada en el campo `imagen` de
+`data/motos.json`:
 
-- `images/`: las fotos de las **motos** (PNG transparente). La URL de cada
-  una está en el campo `imagen` de `data/motos.json`:
-
-  ```
-  https://alquiler-motos-assets.s3.sa-east-1.amazonaws.com/images/{nombre}.png
-  ```
-
-- `zonas/`: las fotos de las **ciudades** donde opera el servicio. Están
-  pensadas para mostrarse junto a cada locación en la landing:
-
-  | Archivo | Formato | Nota |
-  | --- | --- | --- |
-  | `BuenosAires.webp` | WebP | moderno y muy liviano, ideal para web |
-  | `Cordoba.jpg` | JPG (172.2 KB) | estándar, buen peso para web |
+```
+https://alquiler-motos-assets.s3.sa-east-1.amazonaws.com/images/{nombre}.png
+```
 
 - La landing las carga con `<img loading="lazy">` (PNG transparente con
   `object-contain`, zoom suave al pasar el cursor).
-- Si una URL no carga o no existe, automáticamente se muestra el **slot de
-  respaldo** ("Slot de imagen"). Esto aplica tanto a las motos (`images/`)
-  como a las ciudades (`zonas/`).
-- Elección de formatos (`zonas/`): **WebP** para Buenos Aires (muy liviano) y
-  **JPG** para Córdoba (estándar, 172.2 KB).
+- Si la URL no carga o no existe, automáticamente se muestra el **slot de
+  respaldo** ("Slot de imagen").
+- Las imágenes de las secciones de **locaciones** todavía no se subieron:
+  por eso ahí el slot queda fijo.
 
 ---
 

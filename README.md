@@ -24,9 +24,8 @@ incluida.
 ## Estado actual
 
 Landing de entrada estilo Bikago (SEARCH hacia el mapa, filtros y catálogo de
-la flota Yamaha con fotos desde AWS S3, locaciones con foto de la ciudad y
-link a Google Maps, y calculadora en pesos argentinos; el widget de reserva
-vive en el Facturador) y una app con 5
+la flota Yamaha con fotos desde AWS S3, locaciones y calculadora en pesos
+argentinos; el widget de reserva vive en el Facturador) y una app con 5
 vistas: **Mapa**, **Buscar moto**, **Mis viajes**, **Flota** y **Acerca del
 proyecto**. Tema oscuro "Cyber-Tech". Cobertura por ahora solo Argentina.
 
