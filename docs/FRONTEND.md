@@ -31,9 +31,10 @@ baja con scroll). Está ordenada en bloques, en criollo:
    solas. La activa tiene fondo neón y filtra la grilla al instante.
 5. **Catálogo de flota:** grilla de tarjetas con la **foto real de AWS S3**
    (PNG transparente, con zoom suave al pasar el cursor), nombre, precio
-   por día en **pesos argentinos**, estado "Disponible" y botón
-   **Alquilar** (abre la **vista Facturación**, sección 5). Si una foto no
-   carga, queda el slot de respaldo.
+   por día en **pesos argentinos**, estado "Disponible" y un botón
+   **Alquilar** (igual que SEARCH: spinner + navegación a la página del
+   **Facturador**, sección 5). Si una foto no carga, queda el slot de
+   respaldo.
 6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
    que hoy es un slot): **Buenos Aires** y **Córdoba**, con botón
    "Explorar zona" ("En construcción").
@@ -127,15 +128,24 @@ Una grilla con las motos de la flota. Cada tarjeta muestra:
 - Precio por kilómetro.
 - Botón **Alquilar** (neón) o **No disponible** (apagado).
 
-> Al tocar **Alquilar** se abre la **vista Facturación** (detalle de la
-> moto, cantidad y días) — explicada en la sección 5.
+> Al tocar **Alquilar** se abre la **pantalla Facturador** (`facturador.html`),
+> una página aparte — explicada en la sección 5.
 
 ---
 
-## 5. La vista Facturación ("checkout")
+## 5. La pantalla Facturador (página aparte)
 
-Al tocar **Alquilar** en la landing o en "Buscar moto" se abre esta vista
-con el detalle para confirmar el alquiler:
+Al tocar **Alquilar** en la landing o en "Buscar moto" se abre `facturador.html`
+como **página independiente** (no es una vista adentro de la app). Esto es a
+propósito para que sea eficiente:
+
+- **No carga el mapa** ni Leaflet, ni la app/landing: solo `js/api.js` (los
+  datos de la flota) y `js/motor.js` (el cálculo de mantenimiento). Pesos
+  mínimos, carga rápida.
+- La moto viaja por la URL: `facturador.html?moto=3`. Si la URL no trae moto,
+  la pantalla muestra un selector para elegirla.
+
+La pantalla tiene:
 
 - **Foto y descripción** de la moto (campo `descripcion`, único por modelo;
   si la foto de S3 no carga queda el slot de respaldo).
@@ -146,16 +156,23 @@ con el detalle para confirmar el alquiler:
 - **Días:** de 1 a 30.
 - **Total:** `precio por día × cantidad × días`, en pesos argentinos
   (se actualiza solo al cambiar cantidad o días).
-- **Volver:** te devuelve de donde venías (si eras de la landing vuelve a
-  la landing; si eras de "Buscar moto" vuelve a la grilla).
+- **Volver:** te devuelve a la página anterior (`history.back()`).
 - **Confirmar alquiler:** por ahora muestra "En construcción". En la próxima
   fase crea la reserva en la base y te lleva al mapa a elegir el **punto de
   retiro** (los puntos de retiro/devolución son estaciones fijas con
   coordenadas, no una ruta a recorrer).
 
-> La vista no aparece en la navbar: es una "pantalla interna" que se abre al
-> elegir una moto. La descripción (`descripcion`) y los precios vienen de la
-> base (EC2) o de `data/motos.json` (GitHub Pages).
+> La descripción (`descripcion`) y los precios vienen de la base (EC2) o de
+> `data/motos.json` (GitHub Pages), lo mismo que en la landing.
+
+### Navegación uniforme
+
+Toda **navegación de página** usa el mismo patrón que el SEARCH de la landing:
+botón → spinner → navega (`data-ir="url"`, sin links instantáneos). Aplica al
+"Alquilar" del catálogo, al logo del Facturador y a "Volver al inicio". Los
+cambios de **vista internos** (Mapa, Buscar moto, Mis viajes…) ya eran botones
+con JavaScript; los links **externos** (GitHub/Documentación) se mantienen como
+links reales en pestaña aparte.
 
 ---
 
@@ -242,10 +259,12 @@ https://alquiler-motos-assets.s3.sa-east-1.amazonaws.com/images/{nombre}.png
 | Archivo | Qué es |
 | --- | --- |
 | `index.html` | La página completa: landing, navbar, las 5 vistas y el pie. |
+| `facturador.html` | La página del **Facturador** (alquiler), aparte y liviana (sin mapa). |
 | `css/styles.css` | El estilo visual (tema oscuro "Cyber-Tech"). |
 | `js/landing.js` | La landing: catálogo, filtros, widget de reserva y calculadora. |
 | `js/map.js` | Todo lo del mapa: puntos, ruta y la moto que viaja. |
 | `js/app.js` | Cambio de vistas, botones, lista de motos, tarifa y flota. |
+| `js/facturador.js` | El Facturador: carga la moto por URL, cantidad, días y total. |
 | `js/motor.js` | Puente al motor C++: usa el WASM si está, si no replica en JS. |
 | `wasm/src/motor.cpp` | El algoritmo en C++ (tarifa + mantenimiento). |
 | `build.bat` | Compila el motor (g++ para test + Emscripten para WASM). |

@@ -104,9 +104,9 @@
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
-              <button class="btn ${m.disponible ? "btn-accent btn-sm" : "btn-disabled btn-sm"}" ${
-          m.disponible ? 'data-open-checkout="' + m.id + '" data-origen="landing"' : "disabled"
-        }>${m.disponible ? "Alquilar" : "No disponible"}</button>
+              ${m.disponible
+                ? '<button type="button" class="btn btn-accent btn-sm" data-ir="facturador.html?moto=' + m.id + '"><span>Alquilar</span><span class="spinner hidden"></span></button>'
+                : '<button class="btn btn-disabled btn-sm" disabled>No disponible</button>'}
             </div>
           </div>
         </article>`

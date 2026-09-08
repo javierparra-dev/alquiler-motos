@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facturador · MotoFlow Optimizer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="facturador-page">
+    <header class="facturador-top">
+      <button type="button" class="logo" data-ir="index.html">
+        <span>MotoFlow <b>Optimizer</b></span>
+        <span class="spinner hidden"></span>
+      </button>
+      <span class="loc-pill">Facturador · alquiler</span>
+    </header>
+
+    <main class="page">
+      <header class="page-head">
+        <p class="eyebrow">Facturador · confirmá el alquiler</p>
+        <h2 id="f-nombre">-</h2>
+        <p class="page-sub" id="f-badge"></p>
+      </header>
+
+      <div id="f-select-wrap" class="hidden">
+        <div class="field f-select-field">
+          <label for="f-select">Elegí una moto</label>
+          <select id="f-select"></select>
+        </div>
+      </div>
+
+      <p class="js-hint" id="f-hint" hidden></p>
+
+      <div id="f-detail" class="hidden">
+        <div class="checkout-layout">
+          <div class="checkout-img" id="f-img"></div>
+          <div class="checkout-body">
+            <p class="card-desc" id="f-desc"></p>
+            <div class="table-wrap">
+              <table class="flota ck-table">
+                <tbody id="f-datos"></tbody>
+              </table>
+            </div>
+
+            <div class="checkout-config">
+              <div class="field checkout-field">
+                <label>Cantidad de motos</label>
+                <div class="stepper">
+                  <button type="button" class="icon-btn" id="f-minus" aria-label="Restar">−</button>
+                  <span class="stepper-val" id="f-cant">1</span>
+                  <button type="button" class="icon-btn" id="f-plus" aria-label="Sumar">+</button>
+                </div>
+              </div>
+
+              <div class="field checkout-field">
+                <label for="f-dias">Días (1–30)</label>
+                <input type="number" id="f-dias" min="1" max="30" step="1" value="1" inputmode="numeric" />
+              </div>
+
+              <div class="checkout-total">
+                <span>Total</span>
+                <strong id="f-total">-</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-actions">
+          <button type="button" class="btn btn-ghost" id="f-back">Volver</button>
+          <button type="button" class="btn btn-accent" data-disabled>Confirmar alquiler</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span>MotoFlow Optimizer · Facturador</span>
+        <div class="footer-links">
+          <button type="button" data-ir="index.html"><span>Volver al inicio</span><span class="spinner hidden"></span></button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="js/motor.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/facturador.js"></script>
+</body>
+</html>
