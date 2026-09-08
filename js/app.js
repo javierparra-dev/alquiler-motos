@@ -260,6 +260,7 @@ window.MotoFlow = window.MotoFlow || {};
     .then((motos) => {
       fleet = motos;
       renderAll();
+      loadAlquilerPendiente();
     })
     .catch(() => {
       fleet = [
@@ -268,6 +269,59 @@ window.MotoFlow = window.MotoFlow || {};
       ];
       renderAll();
     });
+
+  /* ---------------- Alquiler confirmado desde el Facturador ---------------- */
+  const locLabels = {
+    caba: "Buenos Aires (CABA)",
+    norte: "Zona Norte",
+    aeropuerto: "Aeropuerto",
+    cba: "Córdoba",
+  };
+
+  function locLabel(v) {
+    return locLabels[v] || String(v || "—");
+  }
+
+  function loadAlquilerPendiente() {
+    const params = new URLSearchParams(location.search);
+    if (params.get("alquiler") !== "1") return;
+    const raw = sessionStorage.getItem("mf-alquiler");
+    sessionStorage.removeItem("mf-alquiler");
+    if (!raw) return;
+
+    let alq;
+    try {
+      alq = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+
+    enterApp();
+    setTimeout(() => {
+      const opt = Array.from(el.moto.options).find(
+        (o) => String(o.value) === String(alq.moto_id)
+      );
+      if (opt) {
+        el.moto.value = opt.value;
+        if (tripSummary) showFare();
+      }
+
+      const pill = $("#rent-pill");
+      if (pill) {
+        const retiro = locLabel(alq.loc_pickup);
+        const devol = alq.loc_dropoff ? locLabel(alq.loc_dropoff) : retiro;
+        pill.classList.remove("hidden");
+        pill.innerHTML =
+          "<b>Alquiler confirmado</b>" +
+          "<span>" + alq.moto_nombre + " · " + alq.qty + " moto" +
+          (alq.qty > 1 ? "s" : "") + " · " + alq.dias +
+          (alq.dias === 1 ? " día" : " días") + "</span>" +
+          "<span>Retiro " + retiro + " → Devolución " + devol + "</span>" +
+          "<span>" + alq.fecha_inicio + " → " + alq.fecha_fin + " · " +
+          alq.hora_entrega + " hs · " + moneyARS(alq.total) + "</span>";
+      }
+    }, 550);
+  }
 
   function renderAll() {
     el.moto.innerHTML = fleet

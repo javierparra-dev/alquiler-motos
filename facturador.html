@@ -51,7 +51,7 @@
               </table>
             </div>
 
-            <div class="checkout-config">
+            <div class="checkout-config f-config">
               <div class="field checkout-field">
                 <label>Cantidad de motos</label>
                 <div class="stepper">
@@ -61,9 +61,42 @@
                 </div>
               </div>
 
-              <div class="field checkout-field">
-                <label for="f-dias">Días (1–30)</label>
-                <input type="number" id="f-dias" min="1" max="30" step="1" value="1" inputmode="numeric" />
+              <div class="field">
+                <label for="loc-pickup">Pick-up · Locación</label>
+                <select id="loc-pickup">
+                  <option value="caba">Buenos Aires (CABA)</option>
+                  <option value="norte">Zona Norte</option>
+                  <option value="aeropuerto">Aeropuerto</option>
+                  <option value="cba">Córdoba</option>
+                </select>
+              </div>
+
+              <div class="field field-return">
+                <button type="button" id="toggle-return" class="link-btn">Diferente locación de devolución</button>
+                <select id="loc-dropoff" class="hidden">
+                  <option value="caba">Buenos Aires (CABA)</option>
+                  <option value="norte">Zona Norte</option>
+                  <option value="aeropuerto">Aeropuerto</option>
+                  <option value="cba">Córdoba</option>
+                </select>
+              </div>
+
+              <div class="field field-date">
+                <label for="date-start">Fechas</label>
+                <div class="date-range">
+                  <input type="date" id="date-start" />
+                  <input type="date" id="date-end" />
+                </div>
+              </div>
+
+              <div class="field field-slider">
+                <label for="time-out">Hora entrega <b id="time-out-val">09:00</b></label>
+                <input type="range" id="time-out" min="0" max="47" step="1" value="18" />
+              </div>
+
+              <div class="field field-slider">
+                <label for="time-back">Hora devolución <b id="time-back-val">18:00</b></label>
+                <input type="range" id="time-back" min="0" max="47" step="1" value="36" />
               </div>
 
               <div class="checkout-total">
@@ -76,7 +109,10 @@
 
         <div class="checkout-actions">
           <button type="button" class="btn btn-ghost" id="f-back">Volver</button>
-          <button type="button" class="btn btn-accent" data-disabled>Confirmar alquiler</button>
+          <button type="button" id="f-confirm" class="btn btn-accent btn-search">
+            <span>Confirmar alquiler</span>
+            <span class="spinner hidden"></span>
+          </button>
         </div>
       </div>
     </main>

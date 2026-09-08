@@ -4,7 +4,8 @@
    MotoFlow.landing  ->  interactividad de la pantalla de entrada
    - grilla de motos (imagenes desde S3 + slot de respaldo)
    - filtros por categoria generados desde los datos
-   - widget de reserva: locacion devolucion, sliders de hora, SEARCH
+   - SEARCH: entra a la app (Mapa). El widget de reserva (locacion,
+     fechas, horas) vivi en el Facturador (facturador.html)
    - calculadora de tarifas (desglose demo -> #precio-final)
 ------------------------------------------------------------------- */
 
@@ -127,50 +128,6 @@
     );
   }
 
-  /* ---------------- Widget: locación de devolución ---------------- */
-  const toggleReturn = $("#toggle-return");
-  const locDropoff = $("#loc-dropoff");
-
-  toggleReturn.addEventListener("click", () => {
-    locDropoff.classList.toggle("hidden");
-    toggleReturn.textContent = locDropoff.classList.contains("hidden")
-      ? "Diferente locación de devolución"
-      : "Misma locación de devolución";
-  });
-
-  /* ---------------- Widget: sliders de hora ---------------- */
-  function slotToTime(v) {
-    const h = Math.floor(v / 2);
-    const m = v % 2 === 1 ? "30" : "00";
-    return String(h).padStart(2, "0") + ":" + m;
-  }
-
-  const timeOut = $("#time-out");
-  const timeBack = $("#time-back");
-  $("#time-out-val").textContent = slotToTime(+timeOut.value);
-  $("#time-back-val").textContent = slotToTime(+timeBack.value);
-
-  timeOut.addEventListener("input", () => {
-    $("#time-out-val").textContent = slotToTime(+timeOut.value);
-  });
-  timeBack.addEventListener("input", () => {
-    $("#time-back-val").textContent = slotToTime(+timeBack.value);
-  });
-
-  /* ---------------- Widget: fechas por defecto ---------------- */
-  function isoToday() {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  }
-  function isoTodayPlus(n) {
-    const d = new Date();
-    d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
-  }
-
-  $("#date-start").value = isoToday();
-  $("#date-end").value = isoTodayPlus(2);
-
   /* ---------------- SEARCH (entra a la app -> mapa) ---------------- */
   const searchBtn = $("#search-btn");
   const spinner = $("#spinner");
@@ -189,8 +146,7 @@
 
   /* ---------------- Calculadora de tarifas (motor C++) ---------------- */
   const calcMoto = $("#calc-moto");
-  const dateStart = $("#date-start");
-  const dateEnd = $("#date-end");
+  const calcDays = $("#calc-days");
 
   function fillCalcSelect() {
     calcMoto.innerHTML = fleet
@@ -205,12 +161,6 @@
           "/día</option>"
       )
       .join("");
-  }
-
-  function daysBetween(a, b) {
-    const t = Date.parse(b) - Date.parse(a);
-    const d = Math.round(t / 86400000);
-    return d >= 1 ? d : 1;
   }
 
   function recomputeFare() {
@@ -228,7 +178,7 @@
     const dFactor = motor.factorDemanda(libres, hora);
     const cFactor = motor.factorClima(clima.code);
 
-    const dias = daysBetween(dateStart.value, dateEnd.value);
+    const dias = Math.min(30, Math.max(1, parseInt(calcDays.value, 10) || 1));
     const precioDiaEfectivo = moto.precio_dia * dFactor * cFactor;
     const base = precioDiaEfectivo * dias;
     const tax = base * WEATHER_TAX;
@@ -243,8 +193,7 @@
   }
 
   calcMoto.addEventListener("change", recomputeFare);
-  dateStart.addEventListener("change", recomputeFare);
-  dateEnd.addEventListener("change", recomputeFare);
+  calcDays.addEventListener("input", recomputeFare);
 
   init();
 })();

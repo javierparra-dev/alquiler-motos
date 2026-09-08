@@ -42,55 +42,14 @@
         <p class="eyebrow">Demo · Cyber-Tech</p>
         <h1>Rent a Scooter &amp; Motorbike</h1>
         <p class="hero-sub">
-          Cobertura en Argentina. Alquilá por hora o por día, con tarifas dinámicas
-          calculadas por el motor de C++ (WebAssembly).
+          Cobertura en Argentina. Alquilá por hora o por día, con tarifas dinámicas.    
         </p>
 
-        <div class="widget">
-          <div class="widget-grid">
-            <div class="field">
-              <label for="loc-pickup">Pick-up · Locación</label>
-              <select id="loc-pickup">
-                <option value="caba">Buenos Aires (CABA)</option>
-                <option value="norte">Zona Norte</option>
-                <option value="aeropuerto">Aeropuerto</option>
-                <option value="cba">Córdoba</option>
-              </select>
-            </div>
-
-            <div class="field field-return">
-              <button type="button" id="toggle-return" class="link-btn">Diferente locación de devolución</button>
-              <select id="loc-dropoff" class="hidden">
-                <option value="caba">Buenos Aires (CABA)</option>
-                <option value="norte">Zona Norte</option>
-                <option value="aeropuerto">Aeropuerto</option>
-                <option value="cba">Córdoba</option>
-              </select>
-            </div>
-
-            <div class="field field-date">
-              <label for="date-start">Fechas</label>
-              <div class="date-range">
-                <input type="date" id="date-start" />
-                <input type="date" id="date-end" />
-              </div>
-            </div>
-
-            <div class="field field-slider">
-              <label for="time-out">Hora entrega <b id="time-out-val">09:00</b></label>
-              <input type="range" id="time-out" min="0" max="47" step="1" value="18" />
-            </div>
-
-            <div class="field field-slider">
-              <label for="time-back">Hora devolución <b id="time-back-val">18:00</b></label>
-              <input type="range" id="time-back" min="0" max="47" step="1" value="36" />
-            </div>
-
-            <button type="button" id="search-btn" class="btn btn-accent btn-search">
-              <span>SEARCH</span>
-              <span id="spinner" class="spinner hidden"></span>
-            </button>
-          </div>
+        <div class="hero-cta">
+          <button type="button" id="search-btn" class="btn btn-accent btn-search">
+            <span>SEARCH</span>
+            <span id="spinner" class="spinner hidden"></span>
+          </button>
         </div>
       </section>
 
@@ -131,6 +90,10 @@
           <div class="field">
             <label for="calc-moto">Moto</label>
             <select id="calc-moto"></select>
+          </div>
+          <div class="field">
+            <label for="calc-days">Días (1–30)</label>
+            <input type="number" id="calc-days" min="1" max="30" step="1" value="2" inputmode="numeric" />
           </div>
           <div class="calc-row"><span>Días</span><span id="calc-dias">-</span></div>
           <div class="calc-row"><span>Factor demanda</span><span id="calc-demand">-</span></div>
@@ -175,6 +138,8 @@
 
         <aside class="panel">
           <h2>Simular viaje</h2>
+
+          <div id="rent-pill" class="rent-pill hidden"></div>
 
           <div class="field">
             <label for="pickup">Punto A (origen)</label>

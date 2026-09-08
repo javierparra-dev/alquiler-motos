@@ -16,15 +16,10 @@ baja con scroll). Está ordenada en bloques, en criollo:
    **"Alquilar ahora"** a la derecha (todavía no alquila: muestra
    "En construcción").
 2. **Título grande:** "Rent a Scooter & Motorbike".
-3. **Widget de reserva:** un contenedor horizontal con
-   - **Pick-up / Locación:** selector de dónde retirás la moto
-     (ciudades argentinas).
-   - **"Diferente locación de devolución":** botón que despliega un
-     segundo selector si lo tocás.
-   - **Fechas:** inicio y fin (por defecto hoy y pasado mañana).
-   - **Sliders de hora:** entrega y devolución, en pasos de media hora.
-   - **Botón SEARCH:** el neón grande. Muestra un spinner un segundo y
-     entra a la app abriendo el **mapa**.
+3. **Búsqueda simple:** el **botón SEARCH** (el neón grande). Muestra un
+   spinner un segundo y entra a la app abriendo el **mapa**. Los datos de
+   retiro, fechas y horas **ya no se piden acá**: se piden recién en el
+   **Facturador**, después de elegir la moto (sección 5).
 4. **Filtros de categoría:** pastillas que se **generan solas desde los
    datos** del catálogo (siempre "Todas" + las categorías reales). Hoy:
    [Todas] [Scooters]. Si mañana hay deportivas o eléctricas, aparecen
@@ -38,11 +33,11 @@ baja con scroll). Está ordenada en bloques, en criollo:
 6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
    que hoy es un slot): **Buenos Aires** y **Córdoba**, con botón
    "Explorar zona" ("En construcción").
-7. **Calculadora de tarifas:** elegís la moto y recalculás sola según las
-   fechas: días, **factor demanda** (motos libres + hora) y **factor
-   clima**, precio base, impuestos (21%) y el total en `#precio-final`,
-   todo en pesos argentinos y calculado por el **motor C++**. El clima
-   sigue siendo simulado por día (falta la base de datos).
+7. **Calculadora de tarifas:** elegís la moto y la cantidad de **días**
+   (1–30) y recalculás sola: días, **factor demanda** (motos libres + hora)
+   y **factor clima**, precio base, impuestos (21%) y el total en
+   `#precio-final`, todo en pesos argentinos y calculado por el **motor
+   C++**. El clima sigue siendo simulado por día (falta la base de datos).
 
 > La landing es la "vidriera". El mapa y las vistas de la app aparecen al
 > tocar SEARCH o el logo.
@@ -96,6 +91,12 @@ Es la caja oscura arriba a la izquierda del mapa:
 | **Moto** | Un menú donde elegís qué moto alquilar. Cada una tiene su precio por kilómetro. |
 | **Botón "Simular viaje"** | El botón neón. Traza la ruta y hace que la moto la recorra. También muestra el precio final. |
 | **Botón "Limpiar"** | Borra todo: puntos, ruta y datos del viaje. Además, después de un viaje **es obligatorio** para poder cargar otro: mientras hay un viaje activo el mapa ignora los clicks, te avisa y el botón **late** en neón. |
+
+> Si llegás al mapa desde el **Facturador** (`index.html?alquiler=1`), arriba
+> del panel aparece un **pill "Alquiler confirmado"** con el resumen de la
+> reserva (moto, cantidad, días, retiro/devolución, fechas, horas y total) y
+> la **moto queda preseleccionada** en el menú. El pill es una sola vez: si
+> recargás la página vuelve a aparecer la landing normalmente.
 
 ### La tarjeta de resultado
 
@@ -153,14 +154,18 @@ La pantalla tiene:
   horas de uso y el **mantenimiento** que calcula el motor C++.
 - **Cantidad de motos:** un stepper `− / +` (de 1 a 5) para alquilar varias
   unidades del mismo modelo.
-- **Días:** de 1 a 30.
+- **Pick-up · Locación:** dónde retirás la moto, con la opción
+  **"Diferente locación de devolución"** (despliega un segundo selector).
+- **Fechas:** inicio y fin (por defecto hoy y pasado mañana); la cantidad de
+  **días sale sola del rango** (mínimo 1, máximo 30).
+- **Hora de entrega y hora de devolución:** sliders en pasos de media hora.
 - **Total:** `precio por día × cantidad × días`, en pesos argentinos
-  (se actualiza solo al cambiar cantidad o días).
+  (se actualiza solo al cambiar cantidad o fechas).
 - **Volver:** te devuelve a la página anterior (`history.back()`).
-- **Confirmar alquiler:** por ahora muestra "En construcción". En la próxima
-  fase crea la reserva en la base y te lleva al mapa a elegir el **punto de
-  retiro** (los puntos de retiro/devolución son estaciones fijas con
-  coordenadas, no una ruta a recorrer).
+- **Confirmar alquiler:** valida que estén la locación y las fechas, guarda
+  la reserva en `sessionStorage` y **te lleva directo al mapa** (con la moto
+  preseleccionada y el resumen en un pill, sección 3). La reserva todavía no
+  se guarda en la base: es la próxima fase (tabla `reservas`).
 
 > La descripción (`descripcion`) y los precios vienen de la base (EC2) o de
 > `data/motos.json` (GitHub Pages), lo mismo que en la landing.
@@ -261,10 +266,10 @@ https://alquiler-motos-assets.s3.sa-east-1.amazonaws.com/images/{nombre}.png
 | `index.html` | La página completa: landing, navbar, las 5 vistas y el pie. |
 | `facturador.html` | La página del **Facturador** (alquiler), aparte y liviana (sin mapa). |
 | `css/styles.css` | El estilo visual (tema oscuro "Cyber-Tech"). |
-| `js/landing.js` | La landing: catálogo, filtros, widget de reserva y calculadora. |
+| `js/landing.js` | La landing: catálogo, filtros, SEARCH y calculadora. |
 | `js/map.js` | Todo lo del mapa: puntos, ruta y la moto que viaja. |
 | `js/app.js` | Cambio de vistas, botones, lista de motos, tarifa y flota. |
-| `js/facturador.js` | El Facturador: carga la moto por URL, cantidad, días y total. |
+| `js/facturador.js` | El Facturador: moto por URL, retiro/devolución, fechas, horas, cantidad, total y confirmación que manda al mapa. |
 | `js/motor.js` | Puente al motor C++: usa el WASM si está, si no replica en JS. |
 | `wasm/src/motor.cpp` | El algoritmo en C++ (tarifa + mantenimiento). |
 | `build.bat` | Compila el motor (g++ para test + Emscripten para WASM). |

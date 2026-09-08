@@ -5,7 +5,10 @@
    - No carga el mapa ni Leaflet: solo api.js (flota) + motor.js
      (mantenimiento) -> carga liviana.
    - Recibe la moto por URL (?moto=ID); si falta, muestra un selector.
-   - Total ARS = precio por dia x cantidad x dias.
+   - Datos de la reserva (pasados a la landing): locacion de retiro y
+     devolucion, fechas, horas, cantidad de motos.
+   - Total ARS = precio por dia x cantidad x dias (dias = rango fechas).
+   - Confirmar: guarda el alquiler en sessionStorage y redirige al mapa.
 ------------------------------------------------------------------- */
 
 window.MotoFlow = window.MotoFlow || {};
@@ -26,9 +29,18 @@ window.MotoFlow = window.MotoFlow || {};
     cant: $("#f-cant"),
     minus: $("#f-minus"),
     plus: $("#f-plus"),
-    dias: $("#f-dias"),
     total: $("#f-total"),
     back: $("#f-back"),
+    confirm: $("#f-confirm"),
+    locPickup: $("#loc-pickup"),
+    toggleReturn: $("#toggle-return"),
+    locDropoff: $("#loc-dropoff"),
+    dateStart: $("#date-start"),
+    dateEnd: $("#date-end"),
+    timeOut: $("#time-out"),
+    timeBack: $("#time-back"),
+    timeOutVal: $("#time-out-val"),
+    timeBackVal: $("#time-back-val"),
     toast: $("#toast"),
   };
 
@@ -70,6 +82,47 @@ window.MotoFlow = window.MotoFlow || {};
       location.href = b.dataset.ir;
     }, 400);
   });
+
+  /* ---------------- Widget: retiro / devolución ---------------- */
+  els.toggleReturn.addEventListener("click", () => {
+    els.locDropoff.classList.toggle("hidden");
+    els.toggleReturn.textContent = els.locDropoff.classList.contains("hidden")
+      ? "Diferente locación de devolución"
+      : "Misma locación de devolución";
+  });
+
+  /* ---------------- Widget: sliders de hora ---------------- */
+  function slotToTime(v) {
+    const h = Math.floor(v / 2);
+    const m = v % 2 === 1 ? "30" : "00";
+    return String(h).padStart(2, "0") + ":" + m;
+  }
+
+  els.timeOutVal.textContent = slotToTime(+els.timeOut.value);
+  els.timeBackVal.textContent = slotToTime(+els.timeBack.value);
+
+  els.timeOut.addEventListener("input", () => {
+    els.timeOutVal.textContent = slotToTime(+els.timeOut.value);
+  });
+  els.timeBack.addEventListener("input", () => {
+    els.timeBackVal.textContent = slotToTime(+els.timeBack.value);
+  });
+
+  /* ---------------- Widget: fechas por defecto ---------------- */
+  function isoToday() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+  function isoTodayPlus(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  els.dateStart.value = isoToday();
+  els.dateEnd.value = isoTodayPlus(2);
+  els.dateStart.addEventListener("change", update);
+  els.dateEnd.addEventListener("change", update);
 
   /* ---------------- Carga de flota ---------------- */
   const wantedId = new URLSearchParams(location.search).get("moto");
@@ -126,7 +179,7 @@ window.MotoFlow = window.MotoFlow || {};
       "</span>";
     els.desc.textContent = moto.descripcion || "Descripción pendiente para esta moto.";
     els.img.innerHTML =
-      '<span class="img-slot">Sin foto de la moto</span>' +
+      '<span class="img-slot"></span>' +
       (moto.imagen
         ? '<img src="' + moto.imagen + '" alt="' + moto.nombre + '" loading="lazy" onerror="this.remove()" />'
         : "");
@@ -158,14 +211,21 @@ window.MotoFlow = window.MotoFlow || {};
     update();
   }
 
-  /* ---------------- Cantidad / dias / total ---------------- */
+  /* ---------------- Cantidad / dias (fechas) / total ---------------- */
+  function daysFromRange() {
+    const a = Date.parse(els.dateStart.value);
+    const b = Date.parse(els.dateEnd.value);
+    if (!a || isNaN(a) || !b || isNaN(b)) return 1;
+    const d = Math.round((b - a) / 86400000);
+    return Math.min(30, Math.max(1, d));
+  }
+
   function update() {
+    if (!moto) return;
     els.cant.textContent = String(qty);
     els.minus.disabled = qty <= 1;
     els.plus.disabled = qty >= 5;
-    const dias = Math.min(30, Math.max(1, parseInt(els.dias.value, 10) || 1));
-    els.dias.value = String(dias);
-    els.total.textContent = moneyARS.format(Number(moto.precio_dia) * qty * dias);
+    els.total.textContent = moneyARS.format(Number(moto.precio_dia) * qty * daysFromRange());
   }
 
   els.minus.addEventListener("click", () => {
@@ -180,11 +240,51 @@ window.MotoFlow = window.MotoFlow || {};
       update();
     }
   });
-  els.dias.addEventListener("input", update);
 
   els.back.addEventListener("click", () => {
     if (history.length > 1) history.back();
     else location.href = "index.html";
+  });
+
+  /* ---------------- Confirmar alquiler -> guarda y va al mapa ---------------- */
+  els.confirm.addEventListener("click", () => {
+    if (!moto) return;
+
+    const a = Date.parse(els.dateStart.value);
+    const b = Date.parse(els.dateEnd.value);
+    if (!els.locPickup.value) {
+      showToast("Elegí la locación de retiro");
+      return;
+    }
+    if (!a || isNaN(a) || !b || isNaN(b) || b < a) {
+      showToast("Revisá las fechas del alquiler");
+      return;
+    }
+
+    const alquiler = {
+      moto_id: String(moto.id),
+      moto_nombre: moto.nombre,
+      precio_dia: Number(moto.precio_dia),
+      qty: qty,
+      dias: daysFromRange(),
+      loc_pickup: els.locPickup.value,
+      loc_dropoff: els.locDropoff.classList.contains("hidden")
+        ? null
+        : els.locDropoff.value,
+      fecha_inicio: els.dateStart.value,
+      fecha_fin: els.dateEnd.value,
+      hora_entrega: slotToTime(+els.timeOut.value),
+      hora_devolucion: slotToTime(+els.timeBack.value),
+      total: Number(moto.precio_dia) * qty * daysFromRange(),
+    };
+    sessionStorage.setItem("mf-alquiler", JSON.stringify(alquiler));
+
+    els.confirm.disabled = true;
+    const spin = els.confirm.querySelector(".spinner");
+    if (spin) spin.classList.remove("hidden");
+    setTimeout(() => {
+      location.href = "index.html?alquiler=1";
+    }, 600);
   });
 
   function capitalize(s) {

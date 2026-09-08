@@ -23,11 +23,11 @@ incluida.
 
 ## Estado actual
 
-Landing de entrada estilo Bikago (widget de reserva, filtros y catálogo de
+Landing de entrada estilo Bikago (SEARCH hacia el mapa, filtros y catálogo de
 la flota Yamaha con fotos desde AWS S3, locaciones y calculadora en pesos
-argentinos) y una app con 5 vistas: **Mapa**, **Buscar moto**,
-**Mis viajes**, **Flota** y **Acerca del proyecto**. Tema oscuro "Cyber-Tech".
-Cobertura por ahora solo Argentina.
+argentinos; el widget de reserva vive en el Facturador) y una app con 5
+vistas: **Mapa**, **Buscar moto**, **Mis viajes**, **Flota** y **Acerca del
+proyecto**. Tema oscuro "Cyber-Tech". Cobertura por ahora solo Argentina.
 
 - El **mapa** traza rutas reales (OpenStreetMap + OSRM) y simula la moto
   viajando de A a B.
@@ -41,10 +41,13 @@ Cobertura por ahora solo Argentina.
   "En construcción : se habilita en próximas actualizaciones".
 - **Alquilar** en la landing o en "Buscar moto" abre el **Facturador** en una
   **página aparte** (`facturador.html?moto=ID`): foto + descripción de la
-  moto, tabla de datos, cantidad de motos (1–5), días (1–30) y el total en
-  pesos (precio/día × cantidad × días). Al no cargar el mapa es liviana y
-  veloz. "Confirmar alquiler" se habilita en la próxima fase (reservas +
-  punto de retiro en el mapa).
+  moto, tabla de datos, cantidad de motos (1–5), **locación de retiro** (con
+  "diferente locación de devolución"), **fechas** (los días salen del rango),
+  **horas** de entrega/devolución y el total en pesos (precio/día × cantidad
+  × días). Al no cargar el mapa es liviana y veloz. **Confirmar alquiler**
+  valida locación y fechas y **te lleva directo al mapa**, donde aparece un
+  pill con el resumen y la moto preseleccionada. Guardar la reserva en la
+  base (tabla `reservas`) es la próxima fase.
 - La app **detecta el backend** automáticamente: si corre con PHP + MySQL,
   las motos salen de la base real, se puede **guardar cada viaje** en
   "Mis viajes" y **Alquilar** desde "Buscar moto". Si no (GitHub Pages),
