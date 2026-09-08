@@ -1106,3 +1106,155 @@ table.flota tr:last-child td {
 .btn.pulse {
   animation: pulse-neon 1.6s ease-out infinite;
 }
+/* ==================================================================
+   VISTA: FACTURACION (checkout)
+=================================================================== */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 6px;
+}
+
+.checkout-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #16233b, var(--surface));
+  border: 1px dashed var(--border);
+  overflow: hidden;
+}
+
+.checkout-img .img-slot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.checkout-img img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.checkout-body {
+  min-width: 0;
+}
+
+.checkout-body .card-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.ck-table {
+  min-width: 0 !important;
+}
+
+.ck-table td:first-child {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ck-table td:last-child {
+  text-align: right;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.checkout-config {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.checkout-field {
+  margin: 0;
+}
+
+.checkout-field label {
+  margin-bottom: 8px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.stepper .icon-btn {
+  padding: 6px 12px;
+  font-size: 16px;
+}
+
+.stepper .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper-val {
+  min-width: 28px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.checkout-total {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 12px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+}
+
+.checkout-total span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.checkout-total strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--accent);
+}
+
+.checkout-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+@media (max-width: 760px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+  .checkout-total {
+    margin-left: 0;
+    align-items: flex-start;
+  }
+  .checkout-actions {
+    flex-direction: column-reverse;
+  }
+}

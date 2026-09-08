@@ -32,8 +32,8 @@ baja con scroll). Está ordenada en bloques, en criollo:
 5. **Catálogo de flota:** grilla de tarjetas con la **foto real de AWS S3**
    (PNG transparente, con zoom suave al pasar el cursor), nombre, precio
    por día en **pesos argentinos**, estado "Disponible" y botón
-   **Alquilar** (muestra "En construcción"). Si una foto no carga, queda
-   el slot de respaldo.
+   **Alquilar** (abre la **vista Facturación**, sección 5). Si una foto no
+   carga, queda el slot de respaldo.
 6. **Locaciones:** dos filas asimétricas (texto corto + imagen cuadrada,
    que hoy es un slot): **Buenos Aires** y **Córdoba**, con botón
    "Explorar zona" ("En construcción").
@@ -125,14 +125,41 @@ Una grilla con las motos de la flota. Cada tarjeta muestra:
 - Estado: **Disponible** (neón) o **No disponible**.
 - Kilometraje y horas de uso.
 - Precio por kilómetro.
-- Botón **Alquilar ahora** (neón) o **No disponible** (apagado).
+- Botón **Alquilar** (neón) o **No disponible** (apagado).
 
-> El botón "Alquilar ahora" todavía no alquila nada: al apretarlo sale
-> el aviso "En construcción".
+> Al tocar **Alquilar** se abre la **vista Facturación** (detalle de la
+> moto, cantidad y días) — explicada en la sección 5.
 
 ---
 
-## 5. La vista Mis viajes
+## 5. La vista Facturación ("checkout")
+
+Al tocar **Alquilar** en la landing o en "Buscar moto" se abre esta vista
+con el detalle para confirmar el alquiler:
+
+- **Foto y descripción** de la moto (campo `descripcion`, único por modelo;
+  si la foto de S3 no carga queda el slot de respaldo).
+- **Tabla de datos:** tipo, precios (base, por km, por día), kilometraje,
+  horas de uso y el **mantenimiento** que calcula el motor C++.
+- **Cantidad de motos:** un stepper `− / +` (de 1 a 5) para alquilar varias
+  unidades del mismo modelo.
+- **Días:** de 1 a 30.
+- **Total:** `precio por día × cantidad × días`, en pesos argentinos
+  (se actualiza solo al cambiar cantidad o días).
+- **Volver:** te devuelve de donde venías (si eras de la landing vuelve a
+  la landing; si eras de "Buscar moto" vuelve a la grilla).
+- **Confirmar alquiler:** por ahora muestra "En construcción". En la próxima
+  fase crea la reserva en la base y te lleva al mapa a elegir el **punto de
+  retiro** (los puntos de retiro/devolución son estaciones fijas con
+  coordenadas, no una ruta a recorrer).
+
+> La vista no aparece en la navbar: es una "pantalla interna" que se abre al
+> elegir una moto. La descripción (`descripcion`) y los precios vienen de la
+> base (EC2) o de `data/motos.json` (GitHub Pages).
+
+---
+
+## 6. La vista Mis viajes
 
 El historial vive en `#viajes-list`:
 
@@ -145,7 +172,7 @@ El historial vive en `#viajes-list`:
 
 ---
 
-## 6. La vista Flota
+## 7. La vista Flota
 
 Una tabla con el estado de cada moto:
 
@@ -157,14 +184,14 @@ Una tabla con el estado de cada moto:
 
 ---
 
-## 7. La vista Acerca del proyecto
+## 8. La vista Acerca del proyecto
 
 Explica el stack: frontend, backend PHP, el motor C++ (con los
 algoritmos previstos) y cómo se piensan conectar los datos.
 
 ---
 
-## 8. El aviso "En construcción"
+## 9. El aviso "En construcción"
 
 Todos los botones que todavía no funcionan muestran el mismo aviso al
 final de la pantalla:

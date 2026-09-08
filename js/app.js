@@ -4,10 +4,10 @@
    MotoFlow.app  ->  UI: navegacion de vistas, tarifa dinamica
    - switcher de vistas desde la navbar
    - toast generico para botones "en construccion" ([data-disabled])
-   - motos desde js/api.js (MySQL si hay backend, si no data/motos.json)
+- motos desde js/api.js (MySQL si hay backend, si no data/motos.json)
    - tarifa y mantenimiento calculados por el motor C++ (js/motor.js)
-   - viajes: guardar desde el mapa y reservar desde Buscar moto
------------------------------------------------------------------- */
+   - viajes: guardar desde el mapa / checkout: Alquilar (landing y Buscar moto)
+   ------------------------------------------------------------------ */
 
 window.MotoFlow = window.MotoFlow || {};
 
@@ -28,6 +28,17 @@ window.MotoFlow = window.MotoFlow || {};
     rWeather: $("#r-weather"),
     rMotor: $("#r-motor"),
     rTotal: $("#r-total"),
+    ckNombre: $("#ck-nombre"),
+    ckBadge: $("#ck-badge"),
+    ckImg: $("#ck-img"),
+    ckDesc: $("#ck-desc"),
+    ckDatos: $("#ck-datos"),
+    ckCant: $("#ck-cant"),
+    ckMinus: $("#ck-minus"),
+    ckPlus: $("#ck-plus"),
+    ckDias: $("#ck-dias"),
+    ckTotal: $("#ck-total"),
+    ckBack: $("#ck-back"),
   };
 
   const menu = $("#menu");
@@ -39,6 +50,9 @@ window.MotoFlow = window.MotoFlow || {};
   let tripSummary = null;
   let backendOn = false;
   let lastFare = 0;
+  let checkoutMoto = null;
+  let checkoutQty = 1;
+  let checkoutOrigin = "buscar";
 
   /* ---------------- Vistas ---------------- */
   const views = document.querySelectorAll(".view");
@@ -291,9 +305,7 @@ window.MotoFlow = window.MotoFlow || {};
     grid.innerHTML = fleet
       .map((m) => {
         const cta = m.disponible
-          ? backendOn
-            ? '<button class="btn btn-accent" data-reserve="' + m.id + '">Reservar</button>'
-            : '<button class="btn btn-accent" data-disabled>Alquilar ahora</button>'
+          ? '<button class="btn btn-accent" data-open-checkout="' + m.id + '" data-origen="buscar">Alquilar</button>'
           : '<button class="btn btn-disabled" disabled>No disponible</button>';
         return `
         <article class="card moto-card">
@@ -309,12 +321,119 @@ window.MotoFlow = window.MotoFlow || {};
       .join("");
   }
 
-  $("#moto-grid").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-reserve]");
+  /* ---------------- Checkout / facturacion ---------------- */
+  // Handler global: "Alquilar" desde landing (data-origen=landing) y Buscar moto.
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-open-checkout]");
     if (!b) return;
     e.stopPropagation();
-    const moto = fleet.find((m) => String(m.id) === String(b.dataset.reserve));
-    if (moto) showToast("Reservada " + moto.nombre + " · se retira en el local más cercano");
+    openCheckout(b.dataset.openCheckout, b.dataset.origen || "buscar");
+  });
+
+  function openCheckout(motoId, origin) {
+    const moto = fleet.find((m) => String(m.id) === String(motoId));
+    if (!moto) {
+      showToast("No se encontró la moto");
+      return;
+    }
+    checkoutMoto = moto;
+    checkoutQty = 1;
+    checkoutOrigin = origin === "landing" ? "landing" : "buscar";
+
+    if (app.classList.contains("active")) {
+      showCheckout();
+    } else {
+      menu.classList.add("menu-hidden");
+      setTimeout(() => {
+        menu.style.display = "none";
+        app.classList.add("active");
+        showCheckout();
+      }, 430);
+    }
+  }
+  ns.openCheckout = openCheckout;
+
+  function showCheckout() {
+    renderCheckout();
+    go("checkout");
+  }
+
+  function renderCheckout() {
+    const m = checkoutMoto;
+    el.ckNombre.textContent = m.nombre;
+    el.ckBadge.innerHTML =
+      '<span class="badge ' + (m.disponible ? "ok" : "off") + '">' +
+      (m.disponible ? "Disponible" : "No disponible") +
+      "</span>";
+
+    el.ckDesc.textContent =
+      m.descripcion || "Descripción pendiente para esta moto.";
+
+    el.ckImg.innerHTML =
+      '<span class="img-slot">Sin foto de la moto</span>' +
+      (m.imagen
+        ? '<img src="' + m.imagen + '" alt="' + m.nombre + '" loading="lazy" onerror="this.remove()" />'
+        : "");
+
+    const mant = ns.motor.estadoMantenimiento(Number(m.km), Number(m.horas_uso));
+    const mantBadge =
+      '<span class="badge ' + (mant === 0 ? "ok" : mant === 1 ? "warn" : "off") + '">' +
+      ns.motor.mantenimientoLabel(Number(m.km), Number(m.horas_uso)) +
+      "</span>";
+
+    const rows = [
+      ["Moto", m.nombre],
+      ["Tipo", capitalize(m.tipo)],
+      ["Precio base", moneyARS(Number(m.precio_base))],
+      ["Precio por km", moneyARS(Number(m.precio_km))],
+      ["Precio por día", moneyARS(Number(m.precio_dia))],
+      ["Kilometraje", Number(m.km).toLocaleString("es-AR") + " km"],
+      ["Horas de uso", Number(m.horas_uso) + " h"],
+      ["Mantenimiento (motor)", mantBadge],
+    ];
+    el.ckDatos.innerHTML = rows
+      .map((r) => "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td></tr>")
+      .join("");
+
+    updateStepper();
+    updateTotal();
+  }
+
+  function updateStepper() {
+    el.ckCant.textContent = String(checkoutQty);
+    el.ckMinus.disabled = checkoutQty <= 1;
+    el.ckPlus.disabled = checkoutQty >= 5;
+  }
+
+  function updateTotal() {
+    if (!checkoutMoto) return;
+    const dias = Math.min(30, Math.max(1, parseInt(el.ckDias.value, 10) || 1));
+    el.ckDias.value = String(dias);
+    const total = Number(checkoutMoto.precio_dia) * checkoutQty * dias;
+    el.ckTotal.textContent = moneyARS(total);
+  }
+
+  el.ckMinus.addEventListener("click", () => {
+    if (checkoutQty > 1) {
+      checkoutQty--;
+      updateStepper();
+      updateTotal();
+    }
+  });
+
+  el.ckPlus.addEventListener("click", () => {
+    if (checkoutQty < 5) {
+      checkoutQty++;
+      updateStepper();
+      updateTotal();
+    }
+  });
+
+  el.ckDias.addEventListener("input", updateTotal);
+
+  el.ckBack.addEventListener("click", () => {
+    if (checkoutOrigin === "landing") showMenu();
+    else go("buscar");
   });
 
   /* ---------------- Vista: Flota ---------------- */

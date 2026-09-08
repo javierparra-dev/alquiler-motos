@@ -105,7 +105,7 @@
                 </svg>
               </button>
               <button class="btn ${m.disponible ? "btn-accent btn-sm" : "btn-disabled btn-sm"}" ${
-          m.disponible ? "data-disabled" : "disabled"
+          m.disponible ? 'data-open-checkout="' + m.id + '" data-origen="landing"' : "disabled"
         }>${m.disponible ? "Alquilar" : "No disponible"}</button>
             </div>
           </div>

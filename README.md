@@ -39,9 +39,14 @@ Cobertura por ahora solo Argentina.
   reales de la flota + la hora actual.
 - Los botones que no tienen lógica todavía muestran el aviso
   "En construcción : se habilita en próximas actualizaciones".
+- **Alquilar** en la landing o en "Buscar moto" abre la **vista
+  Facturación**: foto + descripción de la moto, tabla de datos, cantidad
+  de motos (1–5), días (1–30) y el total en pesos (precio/día × cantidad ×
+  días). "Confirmar alquiler" se habilita en la próxima fase (reservas +
+  punto de retiro en el mapa).
 - La app **detecta el backend** automáticamente: si corre con PHP + MySQL,
   las motos salen de la base real, se puede **guardar cada viaje** en
-  "Mis viajes" y **reservar** desde "Buscar moto". Si no (GitHub Pages),
+  "Mis viajes" y **Alquilar** desde "Buscar moto". Si no (GitHub Pages),
   usa `data/motos.json` como demo sin romperse.
 
 ## Compilar el motor

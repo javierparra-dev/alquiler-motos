@@ -219,10 +219,59 @@
             <p class="eyebrow">Flota disponible</p>
             <h2>Buscar moto</h2>
             <p class="page-sub">
-              Con backend: botón <b>Reservar</b> directo. Sin backend: el detalle del alquiler se habilita en próximas actualizaciones.
+              Tocá <b>Alquilar</b> en una moto para ver el detalle y confirmar el alquiler.
             </p>
           </header>
           <div id="moto-grid" class="grid-3"></div>
+        </div>
+      </section>
+
+      <!-- VISTA: FACTURACION (checkout) -->
+      <section class="view" id="view-checkout">
+        <div class="page">
+          <header class="page-head">
+            <p class="eyebrow">Confirmá tu alquiler</p>
+            <h2 id="ck-nombre">-</h2>
+            <p class="page-sub" id="ck-badge"></p>
+          </header>
+
+          <div class="checkout-layout">
+            <div class="checkout-img" id="ck-img"></div>
+            <div class="checkout-body">
+              <p class="card-desc" id="ck-desc"></p>
+              <div class="table-wrap">
+                <table class="flota ck-table">
+                  <tbody id="ck-datos"></tbody>
+                </table>
+              </div>
+
+              <div class="checkout-config">
+                <div class="field checkout-field">
+                  <label>Cantidad de motos</label>
+                  <div class="stepper">
+                    <button type="button" class="icon-btn" id="ck-minus" aria-label="Restar">−</button>
+                    <span class="stepper-val" id="ck-cant">1</span>
+                    <button type="button" class="icon-btn" id="ck-plus" aria-label="Sumar">+</button>
+                  </div>
+                </div>
+
+                <div class="field checkout-field">
+                  <label for="ck-dias">Días (1–30)</label>
+                  <input type="number" id="ck-dias" min="1" max="30" step="1" value="1" inputmode="numeric" />
+                </div>
+
+                <div class="checkout-total">
+                  <span>Total</span>
+                  <strong id="ck-total">-</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-actions">
+            <button type="button" class="btn btn-ghost" id="ck-back">Volver</button>
+            <button type="button" class="btn btn-accent" data-disabled>Confirmar alquiler</button>
+          </div>
         </div>
       </section>
 

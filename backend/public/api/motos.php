@@ -9,7 +9,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 }
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
-$sql = 'SELECT id, nombre, tipo, categoria, precio_base, precio_km, precio_dia, km, horas_uso, disponible, imagen FROM motos';
+$sql = 'SELECT id, nombre, tipo, categoria, descripcion, precio_base, precio_km, precio_dia, km, horas_uso, disponible, imagen FROM motos';
 
 if ($id) {
   $stmt = db()->prepare($sql . ' WHERE id = ?');
