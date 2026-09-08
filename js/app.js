@@ -85,6 +85,11 @@ window.MotoFlow = window.MotoFlow || {};
   );
   $("#btn-home").addEventListener("click", showMenu);
 
+  /* ---------------- Imágenes no arrastrables ---------------- */
+  document.addEventListener("dragstart", (e) => {
+    if (e.target.tagName === "IMG") e.preventDefault();
+  });
+
   /* ---------------- Toast generico (botones en construccion) ---------------- */
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-disabled]");

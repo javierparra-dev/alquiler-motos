@@ -32,6 +32,11 @@
     });
   });
 
+  /* ---------------- Imágenes no arrastrables ---------------- */
+  document.addEventListener("dragstart", (e) => {
+    if (e.target.tagName === "IMG") e.preventDefault();
+  });
+
   /* ---------------- Carga de datos ---------------- */
   function init() {
     window.MotoFlow.api
@@ -123,7 +128,7 @@
       m.imagen +
       '" alt="' +
       m.nombre +
-      '" loading="lazy" ' +
+      '" loading="lazy" draggable="false" ' +
       'onerror="this.parentNode.innerHTML = \'<span>Slot de imagen</span>\'" />'
     );
   }
